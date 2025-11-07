@@ -1,12 +1,12 @@
 ---
 title: "Gaia Lens Blog"
-format: html
+listing:
+  contents: posts
+  sort: "date desc"
+  type: default
+  categories: true
+  sort-ui: false
+  filter-ui: false
 ---
 
-Welcome to the Gaia Lens Blog. Recent posts:
-
-::: {.listing}
-#| contents: posts
-#| sort: "date desc"
-#| type: default
-:::
+Welcome to the Gaia Lens Blog. Recent posts are listed below.

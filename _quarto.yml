@@ -1,9 +1,6 @@
 project:
   type: website
   output-dir: docs
-  render:
-    - index.qmd
-    - posts/*/index.qmd
 
 website:
   title: "Gaia Lens Blog"
@@ -11,5 +8,4 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
 

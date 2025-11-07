@@ -1,12 +1,5 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Gaia Lens Blog",
-    "section": "",
-    "text": "Welcome to the Gaia Lens Blog. Recent posts:\n\n#| contents: posts #| sort: “date desc” #| type: default"
-  },
-  {
     "objectID": "posts/2025-11-06-landsat-composites/index.html",
     "href": "posts/2025-11-06-landsat-composites/index.html",
     "title": "Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine",
@@ -26,5 +19,12 @@
     "title": "Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine",
     "section": "Get Started Today!",
     "text": "Get Started Today!\nThese new Landsat composite collections are now available in the Earth Engine Data Catalog. Search for LANDSAT/COMPOSITES/C02 in the catalog or visit datasets such as LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL.\nSpend less time preprocessing and more time on discovery. We hope these new collections accelerate your Landsat-based research and applications in Google Earth Engine!"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Gaia Lens Blog",
+    "section": "",
+    "text": "Welcome to the Gaia Lens Blog. Recent posts are listed below.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSkip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine\n\n\n\nEarth Engine\n\nLandsat\n\nRemote Sensing\n\n\n\n\n\n\n\n\n\nNov 6, 2025\n\n\nJustin Braaten\n\n\n\n\n\nNo matching items"
   }
 ]

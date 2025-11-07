@@ -80,9 +80,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description"],
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -132,7 +132,7 @@ window.Quarto = {
 
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -155,11 +155,6 @@ window.Quarto = {
     <a class="nav-link active" href="./index.html" aria-current="page"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <span class="nav-link">
-<span class="menu-text">about.qmd</span>
-    </span>
-  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -171,7 +166,9 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RWFydGglMjBFbmdpbmU=">Earth Engine <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TGFuZHNhdA==">Landsat <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UmVtb3RlJTIwU2Vuc2luZw==">Remote Sensing <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -194,47 +191,34 @@ window.Quarto = {
 </header>
 
 
-<p>Welcome to the Gaia Lens Blog. Recent posts:</p>
-<div class="listing">
-<p>#| contents: posts #| sort: “date desc” #| type: default</p>
-</div>
+<p>Welcome to the Gaia Lens Blog. Recent posts are listed below.</p>
 
 
 
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-listing-file-modified-sort="1762481269815" data-listing-reading-time-sort="6" data-listing-word-count-sort="1184">
+<div class="quarto-post image-right" data-index="0" data-categories="RWFydGglMjBFbmdpbmUlMkNMYW5kc2F0JTJDUmVtb3RlJTIwU2Vuc2luZw==" data-listing-date-sort="1762387200000" data-listing-file-modified-sort="1762474618079" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="977">
 <div class="thumbnail"><a href="./posts/2025-11-06-landsat-composites/index.html" class="no-external">
 
-<!-- img(9CEB782EFEE6)[progressive=false, height=]:listing:posts/2025-11-06-landsat-composites/index.html -->
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2025-11-06-landsat-composites/index.html" class="no-external">Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in</a>
-</h3>
-<div class="delink listing-description"><a href="./posts/2025-11-06-landsat-composites/index.html" class="no-external">
-<!-- desc(5A0113B34292)[max=175]:posts/2025-11-06-landsat-composites/index.html -->
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/2025-11-06-landsat-composites/index.html" class="no-external">
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="RWFydGglMjBFbmdpbmUlMkNMYW5kc2F0JTJDUmVtb3RlJTIwU2Vuc2luZw==" data-listing-date-sort="1762387200000" data-listing-file-modified-sort="1762474618079" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="977">
-<div class="thumbnail"><a href="./posts/2025-11-06-landsat-composites/index.html" class="no-external">
-
-<!-- img(9CEB782EFEE6)[progressive=false, height=]:listing:posts/2025-11-06-landsat-composites/index.html -->
+<p class="card-img-top"><img src="posts/2025-11-06-landsat-composites/index_files/figure-html/cell-4-output-1.png"  class="thumbnail-image card-img"/></p>
 
 </a></div>
 <div class="body">
 <h3 class="no-anchor listing-title">
 <a href="./posts/2025-11-06-landsat-composites/index.html" class="no-external">Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine</a>
 </h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('RWFydGglMjBFbmdpbmU='); return false;">Earth Engine</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TGFuZHNhdA=='); return false;">Landsat</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UmVtb3RlJTIwU2Vuc2luZw=='); return false;">Remote Sensing</div>
+
+</div>
 <div class="delink listing-description"><a href="./posts/2025-11-06-landsat-composites/index.html" class="no-external">
-<!-- desc(5A0113B34292)[max=175]:posts/2025-11-06-landsat-composites/index.html -->
+Landsat provides an invaluable, decades-long record of our changing planet, but working with it often involves the time-consuming tasks of filtering scenes, masking clouds…
 </a></div>
 </div>
 <div class="metadata">

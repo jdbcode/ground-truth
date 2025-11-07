@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Justin Braaten">
+<meta name="dcterms.date" content="2025-11-06">
 
-<title>Gaia Lens Blog</title>
+<title>Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine – Gaia Lens Blog</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,27 +22,62 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-3ee97197525eb9b102a0c32a5bae42e2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-3ee97197525eb9b102a0c32a5bae42e2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -68,6 +105,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -79,9 +119,9 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
     </a>
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Gaia Lens Blog</span>
     </a>
   </div>
@@ -92,13 +132,8 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="../../index.html"> 
 <span class="menu-text">Home</span></a>
-  </li>  
-  <li class="nav-item">
-    <span class="nav-link">
-<span class="menu-text">about.qmd</span>
-    </span>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -117,14 +152,31 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Gaia Lens Blog</h1>
-</div>
+<h1 class="title">Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Earth Engine</div>
+    <div class="quarto-category">Landsat</div>
+    <div class="quarto-category">Remote Sensing</div>
+  </div>
+  </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Justin Braaten </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 6, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -134,12 +186,179 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Welcome to the Gaia Lens Blog. Recent posts:</p>
-<div class="listing">
-<p>#| contents: posts #| sort: “date desc” #| type: default</p>
+<p>Landsat provides an invaluable, decades-long record of our changing planet, but working with it often involves the time-consuming tasks of filtering scenes, masking clouds and shadows, and combining images to get a clear view of the Earth’s surface. What if you could skip those steps and jump straight into analysis with ready-to-use, temporally consistent data?</p>
+<p>We’re thrilled to announce a new suite of Landsat composite collections in Google Earth Engine, designed to save you time and effort. Based on Landsat Collection 2, Tier 1, Level-2 Surface Reflectance data, these new collections provide consistently processed, cloud-masked composites spanning data from Landsat 4, 5, 7, 8, and 9 from 1984 to the present.</p>
+<section id="cloud-free-data-ready-for-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="cloud-free-data-ready-for-analysis">Cloud-Free Data, Ready for Analysis</h2>
+<p>Each composite is created by applying rigorous cloud, shadow, and aerosol masking to all available scenes within a given time interval, then selecting the most recent clear pixel for each location. The result is a set of spatially complete, temporally dense image collections perfect for time-series analysis, land cover mapping, and environmental monitoring, without the preprocessing headache.</p>
+<p>We are releasing composites at three temporal resolutions—8-day, 32-day, and annual—to meet various monitoring needs. For each resolution, we offer two types of collections:</p>
+<ul>
+<li>Surface Reflectance (SR) Composites: blue, green, red, NIR, SWIR1, SWIR2, and thermal surface temperature.
+<ul>
+<li><code>LANDSAT/COMPOSITES/C02/T1_L2_8DAY</code></li>
+<li><code>LANDSAT/COMPOSITES/C02/T1_L2_32DAY</code></li>
+<li><code>LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL</code></li>
+</ul></li>
+<li>Spectral Index Composites: BAI, EVI, NBR, NDVI, NDWI.
+<ul>
+<li>For example: <code>LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI</code>, <code>LANDSAT/COMPOSITES/C02/T1_L2_32DAY_BAI</code>, etc.</li>
+</ul></li>
+</ul>
+<p>In this post, we’ll walk through a few examples with Python in Quarto. The code below renders static images and charts suitable for Medium or other static sites.</p>
+<section id="example-1-create-a-cloud-free-annual-mosaic" class="level3">
+<h3 class="anchored" data-anchor-id="example-1-create-a-cloud-free-annual-mosaic">Example 1: Create a Cloud-Free Annual Mosaic</h3>
+<div id="10937bf7" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># True-color composite for Switzerland in 2023</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>collection <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL'</span>) <span class="op">\</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2023-01-01'</span>, <span class="st">'2024-01-01'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Each annual composite collection contains one image per year.</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> collection.first()</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>vis_params <span class="op">=</span> {<span class="st">'bands'</span>: [<span class="st">'red'</span>, <span class="st">'green'</span>, <span class="st">'blue'</span>], <span class="st">'min'</span>: <span class="dv">0</span>, <span class="st">'max'</span>: <span class="fl">0.3</span>}</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>switzerland_roi <span class="op">=</span> ee.Geometry.Rectangle([<span class="fl">5.9</span>, <span class="fl">45.8</span>, <span class="fl">10.5</span>, <span class="fl">47.8</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<div id="821ff092" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-4-output-1.png" width="950" height="456" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="example-2-monitor-vegetation-health-with-8-day-ndvi-static-chart" class="level3">
+<h3 class="anchored" data-anchor-id="example-2-monitor-vegetation-health-with-8-day-ndvi-static-chart">Example 2: Monitor Vegetation Health with 8-Day NDVI (Static Chart)</h3>
+<div id="2bf596f6" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Point in Sacramento area</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>point <span class="op">=</span> ee.Geometry.Point([<span class="op">-</span><span class="fl">121.5</span>, <span class="fl">38.5</span>])</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>collection_ndvi <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI'</span>) <span class="op">\</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2023-01-01'</span>, <span class="st">'2024-01-01'</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_ndvi(img):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> img.date().<span class="bu">format</span>(<span class="st">"YYYY-MM-dd"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    ndvi <span class="op">=</span> img.reduceRegion(reducer<span class="op">=</span>ee.Reducer.mean(), geometry<span class="op">=</span>point, scale<span class="op">=</span><span class="dv">30</span>).get(<span class="st">'NDVI'</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ee.Feature(<span class="va">None</span>, {<span class="st">'date'</span>: date, <span class="st">'ndvi'</span>: ndvi})</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Bring small series client-side for plotting</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>timeseries <span class="op">=</span> collection_ndvi.<span class="bu">map</span>(extract_ndvi).getInfo()</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> [f[<span class="st">'properties'</span>] <span class="cf">for</span> f <span class="kw">in</span> timeseries[<span class="st">'features'</span>]]</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(rows)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'date'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'date'</span>])</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>chart <span class="op">=</span> alt.Chart(df).mark_line(point<span class="op">=</span><span class="va">True</span>).encode(</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="st">'date:T'</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span>alt.Y(<span class="st">'ndvi:Q'</span>, title<span class="op">=</span><span class="st">'NDVI'</span>),</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        tooltip<span class="op">=</span>[<span class="st">'date'</span>, <span class="st">'ndvi'</span>]</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>).properties(title<span class="op">=</span><span class="st">'8-Day NDVI Time Series (Sacramento 2023)'</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>chart</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+
+<style>
+  #altair-viz-07f1b236f9d446bfbec34d602010a139.vega-embed {
+    width: 100%;
+    display: flex;
+  }
+
+  #altair-viz-07f1b236f9d446bfbec34d602010a139.vega-embed details,
+  #altair-viz-07f1b236f9d446bfbec34d602010a139.vega-embed details summary {
+    position: relative;
+  }
+</style>
+<div id="altair-viz-07f1b236f9d446bfbec34d602010a139"></div>
+<script type="text/javascript">
+  var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
+  (function(spec, embedOpt){
+    let outputDiv = document.currentScript.previousElementSibling;
+    if (outputDiv.id !== "altair-viz-07f1b236f9d446bfbec34d602010a139") {
+      outputDiv = document.getElementById("altair-viz-07f1b236f9d446bfbec34d602010a139");
+    }
+
+    const paths = {
+      "vega": "https://cdn.jsdelivr.net/npm/vega@5?noext",
+      "vega-lib": "https://cdn.jsdelivr.net/npm/vega-lib?noext",
+      "vega-lite": "https://cdn.jsdelivr.net/npm/vega-lite@5.20.1?noext",
+      "vega-embed": "https://cdn.jsdelivr.net/npm/vega-embed@6?noext",
+    };
+
+    function maybeLoadScript(lib, version) {
+      var key = `${lib.replace("-", "")}_version`;
+      return (VEGA_DEBUG[key] == version) ?
+        Promise.resolve(paths[lib]) :
+        new Promise(function(resolve, reject) {
+          var s = document.createElement('script');
+          document.getElementsByTagName("head")[0].appendChild(s);
+          s.async = true;
+          s.onload = () => {
+            VEGA_DEBUG[key] = version;
+            return resolve(paths[lib]);
+          };
+          s.onerror = () => reject(`Error loading script: ${paths[lib]}`);
+          s.src = paths[lib];
+        });
+    }
+
+    function showError(err) {
+      outputDiv.innerHTML = `<div class="error" style="color:red;">${err}</div>`;
+      throw err;
+    }
+
+    function displayChart(vegaEmbed) {
+      vegaEmbed(outputDiv, spec, embedOpt)
+        .catch(err => showError(`Javascript Error: ${err.message}<br>This usually means there's a typo in your chart specification. See the javascript console for the full traceback.`));
+    }
+
+    if(typeof define === "function" && define.amd) {
+      requirejs.config({paths});
+      let deps = ["vega-embed"];
+      require(deps, displayChart, err => showError(`Error loading script: ${err.message}`));
+    } else {
+      maybeLoadScript("vega", "5")
+        .then(() => maybeLoadScript("vega-lite", "5.20.1"))
+        .then(() => maybeLoadScript("vega-embed", "6"))
+        .catch(showError)
+        .then(() => displayChart(vegaEmbed));
+    }
+  })({"config": {"view": {"continuousWidth": 300, "continuousHeight": 300}}, "data": {"name": "data-22ac70bfb363c4d3775781babd0e3abe"}, "mark": {"type": "line", "point": true}, "encoding": {"tooltip": [{"field": "date", "type": "temporal"}, {"field": "ndvi", "type": "quantitative"}], "x": {"field": "date", "type": "temporal"}, "y": {"field": "ndvi", "title": "NDVI", "type": "quantitative"}}, "title": "8-Day NDVI Time Series (Sacramento 2023)", "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json", "datasets": {"data-22ac70bfb363c4d3775781babd0e3abe": [{"date": "2023-01-01T00:00:00", "ndvi": null}, {"date": "2023-01-09T00:00:00", "ndvi": null}, {"date": "2023-01-17T00:00:00", "ndvi": 0.7214921911067573}, {"date": "2023-01-25T00:00:00", "ndvi": 0.7456582633053223}, {"date": "2023-02-02T00:00:00", "ndvi": null}, {"date": "2023-02-10T00:00:00", "ndvi": 0.7003737128771915}, {"date": "2023-02-18T00:00:00", "ndvi": null}, {"date": "2023-02-26T00:00:00", "ndvi": 0.6552469815589773}, {"date": "2023-03-06T00:00:00", "ndvi": null}, {"date": "2023-03-14T00:00:00", "ndvi": null}, {"date": "2023-03-22T00:00:00", "ndvi": 0.7012806810297952}, {"date": "2023-03-30T00:00:00", "ndvi": 0.7280278185204107}, {"date": "2023-04-07T00:00:00", "ndvi": 0.7828832781567017}, {"date": "2023-04-15T00:00:00", "ndvi": 0.7873272619556084}, {"date": "2023-04-23T00:00:00", "ndvi": 0.7988671012336453}, {"date": "2023-05-01T00:00:00", "ndvi": null}, {"date": "2023-05-09T00:00:00", "ndvi": 0.765051802516122}, {"date": "2023-05-17T00:00:00", "ndvi": 0.7571482116084816}, {"date": "2023-05-25T00:00:00", "ndvi": 0.7418542124955345}, {"date": "2023-06-02T00:00:00", "ndvi": 0.7206608298050335}, {"date": "2023-06-10T00:00:00", "ndvi": 0.7482755397700721}, {"date": "2023-06-18T00:00:00", "ndvi": 0.7546753745178264}, {"date": "2023-06-26T00:00:00", "ndvi": 0.7264039365248024}, {"date": "2023-07-04T00:00:00", "ndvi": 0.7644402330598175}, {"date": "2023-07-12T00:00:00", "ndvi": 0.7374624674516533}, {"date": "2023-07-20T00:00:00", "ndvi": 0.788420115824638}, {"date": "2023-07-28T00:00:00", "ndvi": 0.6883181696034396}, {"date": "2023-08-05T00:00:00", "ndvi": 0.7207960959929489}, {"date": "2023-08-13T00:00:00", "ndvi": 0.6786430834213305}, {"date": "2023-08-21T00:00:00", "ndvi": 0.7363466265546466}, {"date": "2023-08-29T00:00:00", "ndvi": 0.734634375428046}, {"date": "2023-09-06T00:00:00", "ndvi": 0.7866606000588816}, {"date": "2023-09-14T00:00:00", "ndvi": 0.7514899245871703}, {"date": "2023-09-22T00:00:00", "ndvi": 0.7456089391885593}, {"date": "2023-09-30T00:00:00", "ndvi": 0.7238142252506697}, {"date": "2023-10-08T00:00:00", "ndvi": 0.7235308365375883}, {"date": "2023-10-16T00:00:00", "ndvi": 0.7361453151083418}, {"date": "2023-10-24T00:00:00", "ndvi": 0.7764295739575316}, {"date": "2023-11-01T00:00:00", "ndvi": null}, {"date": "2023-11-09T00:00:00", "ndvi": null}, {"date": "2023-11-17T00:00:00", "ndvi": null}, {"date": "2023-11-25T00:00:00", "ndvi": 0.715623417598255}, {"date": "2023-12-03T00:00:00", "ndvi": 0.7387015285896041}, {"date": "2023-12-11T00:00:00", "ndvi": 0.732066700784715}, {"date": "2023-12-19T00:00:00", "ndvi": null}, {"date": "2023-12-27T00:00:00", "ndvi": null}]}}, {"mode": "vega-lite"});
+</script>
+</div>
+</div>
+</section>
+<section id="example-3-assess-wildfire-burn-severity-with-nbr" class="level3">
+<h3 class="anchored" data-anchor-id="example-3-assess-wildfire-burn-severity-with-nbr">Example 3: Assess Wildfire Burn Severity with NBR</h3>
+<div id="831c9606" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize Normalized Burn Ratio (NBR) difference for the Dixie Fire, Aug 2021</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>prefire <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR'</span>) <span class="op">\</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  .filterDate(<span class="st">'2021-06-15'</span>, <span class="st">'2021-07-15'</span>).mean()</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>postfire <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR'</span>) <span class="op">\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  .filterDate(<span class="st">'2021-08-15'</span>, <span class="st">'2021-09-15'</span>).mean()</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>dNBR <span class="op">=</span> prefire.subtract(postfire)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>palette <span class="op">=</span> [<span class="st">'#006400'</span>, <span class="st">'#F0E68C'</span>, <span class="st">'#8B0000'</span>]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>vis <span class="op">=</span> {<span class="st">'min'</span>: <span class="op">-</span><span class="fl">0.1</span>, <span class="st">'max'</span>: <span class="dv">1</span>, <span class="st">'palette'</span>: palette}</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>region <span class="op">=</span> ee.Geometry.Rectangle([<span class="op">-</span><span class="fl">122.5</span>, <span class="fl">39.8</span>, <span class="op">-</span><span class="fl">120.5</span>, <span class="fl">40.5</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="dfb13f54" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-7-output-1.png" width="950" height="375" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="get-started-today" class="level2">
+<h2 class="anchored" data-anchor-id="get-started-today">Get Started Today!</h2>
+<p>These new Landsat composite collections are now available in the Earth Engine Data Catalog. Search for <code>LANDSAT/COMPOSITES/C02</code> in the catalog or visit datasets such as <code>LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL</code>.</p>
+<p>Spend less time preprocessing and more time on discovery. We hope these new collections accelerate your Landsat-based research and applications in Google Earth Engine!</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
