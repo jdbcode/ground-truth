@@ -6,6 +6,11 @@ on:
       - 'posts/**/*.qmd'
       - 'scripts/publish_to_medium.py'
   workflow_dispatch:
+    inputs:
+      post_folder:
+        description: 'Post folder to render (e.g., "2025-11-06-landsat-composites"). Leave empty to render all posts.'
+        required: false
+        type: string
 
 jobs:
   publish:
@@ -45,10 +50,24 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          CHANGED=$(git diff --name-only "${{ github.event.before }}" "${{ github.event.after }}" -- 'posts/**/*.qmd' | tr '\n' ' ')
-          if [ -z "$CHANGED" ]; then
-            # fallback for squash merges or initial pushes
+          # If manual trigger with a specific post folder, use that
+          if [ -n "${{ inputs.post_folder }}" ]; then
+            TARGET="posts/${{ inputs.post_folder }}/index.qmd"
+            if [ -f "$TARGET" ]; then
+              CHANGED="$TARGET"
+            else
+              echo "Error: $TARGET not found"
+              exit 1
+            fi
+          # For manual trigger without input or when before/after are empty, use all posts
+          elif [ -z "${{ github.event.before }}" ] || [ -z "${{ github.event.after }}" ]; then
             CHANGED=$(git ls-files 'posts/**/*.qmd' | tr '\n' ' ')
+          else
+            CHANGED=$(git diff --name-only "${{ github.event.before }}" "${{ github.event.after }}" -- 'posts/**/*.qmd' | tr '\n' ' ')
+            if [ -z "$CHANGED" ]; then
+              # fallback for squash merges or initial pushes
+              CHANGED=$(git ls-files 'posts/**/*.qmd' | tr '\n' ' ')
+            fi
           fi
           echo "Changed QMD files: $CHANGED"
           echo "files=$CHANGED" >> $GITHUB_OUTPUT
