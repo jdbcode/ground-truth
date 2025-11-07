@@ -1,20 +1,25 @@
 # Ground Truth
 
-Quarto-first blog workspace with an automated pipeline to produce import-ready HTML for Medium. Each post is a self-contained directory under `posts/` with its own `index.qmd`.
+Quarto-first blog workspace optimized for local development and Medium publishing. Each post is a self-contained directory under `posts/` with its own `index.qmd`.
 
 ## Key pieces
 
-- `.github/workflows/publish.yml` — CI that renders changed posts and uploads a self-contained HTML artifact for easy import into Medium (no API token required).
-- `scripts/publish_to_medium.py` — Legacy script for Medium’s deprecated API (kept for historical reference; not used by CI).
-- `posts/` — Self-contained post bundles (e.g., `2025-11-06-landsat-composites/`).
-- `_quarto.yml` — Quarto website config, ready for future self-hosted site.
-- `requirements.txt` — Python deps for local dev and CI, including Earth Engine, geemap, Altair.
+- `posts/` — Self-contained post bundles (e.g., `2025-11-06-landsat-composites/`), each with:
+  - `index.qmd` — Source post
+  - `index.md` — Rendered GitHub Flavored Markdown
+  - `medium-import.html` — Self-contained HTML for Medium import
+  - `index_files/` — Generated assets (images, plots)
+- `_quarto.yml` — Quarto website config, ready for future self-hosted site
+- `requirements.txt` — Python deps including Earth Engine, geemap, Altair
+- `scripts/publish_to_medium.py` — Legacy script for Medium's deprecated API (kept for reference)
 
 ## Local development
 
-1) Install Quarto (CLI) from https://quarto.org.
+### Setup
 
-2) Create a Python env and install deps:
+1. Install Quarto (CLI) from https://quarto.org
+
+2. Create a Python env and install deps:
 
 ```bash
 python -m venv .venv
@@ -22,37 +27,74 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3) Render site locally:
+3. Authenticate with Earth Engine (first time only):
+
+```bash
+python -c "import ee; ee.Authenticate()"
+```
+
+### Working on a post
+
+1. Create or edit a post in `posts/<slug>/index.qmd`
+
+2. Render the post to Markdown:
+
+```bash
+quarto render posts/<slug>/index.qmd --to gfm
+```
+
+3. Render a self-contained HTML for Medium import:
+
+```bash
+cd posts/<slug>
+quarto render index.qmd --to html -M self-contained:true --output medium-import.html
+```
+
+4. Preview the rendered Markdown locally:
+
+```bash
+quarto preview posts/<slug>/index.qmd
+```
+
+Or preview the entire site:
+
+```bash
+quarto preview
+```
+
+### Publishing to Medium
+
+After rendering locally:
+
+1. Navigate to https://medium.com/p/import
+2. Upload `posts/<slug>/medium-import.html`
+3. Review and publish
+
+### Committing changes
+
+Commit both source and rendered outputs:
+
+```bash
+git add posts/<slug>/
+git commit -m "Add/update post: <title>"
+git push
+```
+
+Rendered outputs (`*.md`, `medium-import.html`, `index_files/`) are tracked so they're always available from GitHub.
+
+## Future: Self-hosted site
+
+To publish the full Quarto site to GitHub Pages:
 
 ```bash
 quarto render
+# Then commit _site/ or deploy via GitHub Pages workflow
 ```
-
-## Medium publishing (Import flow)
-
-No tokens required. On push to `posts/**/*.qmd` or via the manual “Run workflow” button:
-
-- CI detects changed post(s)
-- Renders a self-contained HTML file for each post: `posts/<slug>/medium-import.html`
-- Renders GitHub Flavored Markdown alongside it: `posts/<slug>/index.md`
-- Uploads two artifacts:
-  - `medium-import-html-<sha>` with the HTML files
-  - `medium-markdown-<sha>` with the Markdown files
-
-To publish on Medium:
-
-1. Open the Actions run for your commit.
-2. Download the `medium-import-html-<sha>` artifact (recommended) or `medium-markdown-<sha>` for editing.
-3. Go to https://medium.com/p/import and upload `medium-import.html`, or paste the Markdown into Medium’s editor.
-
-Optional: If you later obtain a legacy Medium token, you can re-enable API-based publishing by adding the relevant steps back to the workflow.
-
-## Earth Engine in CI
-
-Posts can auto-auth using a service account if the two EE secrets are provided. Locally, the code falls back to `ee.Authenticate()` on first run, then caches credentials.
 
 ## Notes
 
-- `posts/**/index_files/` and build caches are ignored via `.gitignore`. For Medium import, CI produces a self-contained HTML file that embeds assets.
-- Keep posts self-contained. Place any small CSVs or static images alongside `index.qmd` in the same directory.
+- Keep posts self-contained: place CSVs, static images, etc. alongside `index.qmd`
+- `_site/` and `_freeze/` are ignored (build caches)
+- All rendered post assets are versioned in Git for easy access and Medium import
+
 

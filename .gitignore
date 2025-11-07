@@ -2,9 +2,6 @@
 _site/
 _freeze/
 
-# Quarto post render assets
-posts/**/index_files/
-
 # Python
 __pycache__/
 *.pyc
