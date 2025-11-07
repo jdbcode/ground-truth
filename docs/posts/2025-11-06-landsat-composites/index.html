@@ -8,8 +8,10 @@
 
 <meta name="author" content="Justin Braaten">
 <meta name="dcterms.date" content="2025-11-06">
+<meta name="keywords" content="Earth Engine, Geospatial Analysis, Python, Google Cloud, Remote Sensing, Raster Data, Datasets">
+<meta name="description" content="Short, rough-cut notes on Earth Engine, geospatial analysis, Python libraries, Google Cloud, and datasets — sharing discoveries, tips, and dataset/app announcements.">
 
-<title>Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine – Gaia Lens Blog</title>
+<title>Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine – Ground Truth</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -77,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-3ee97197525eb9b102a0c32a5bae42e2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-e58f7ad7010c4f9d152b2828cb525358.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,6 +107,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<style>html{ scroll-behavior: smooth; }</style>
 <script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
@@ -112,7 +115,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -122,7 +125,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a href="../../index.html" class="navbar-brand navbar-brand-logo">
     </a>
     <a class="navbar-brand" href="../../index.html">
-    <span class="navbar-title">Gaia Lens Blog</span>
+    <span class="navbar-title">Ground Truth</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -146,7 +149,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#cloud-free-data-ready-for-analysis" id="toc-cloud-free-data-ready-for-analysis" class="nav-link active" data-scroll-target="#cloud-free-data-ready-for-analysis">Cloud-Free Data, Ready for Analysis</a></li>
+  <li><a href="#get-started-today" id="toc-get-started-today" class="nav-link" data-scroll-target="#get-started-today">Get Started Today!</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -160,6 +172,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   </div>
 
+<div>
+  <div class="description">
+    Short, rough-cut notes on Earth Engine, geospatial analysis, Python libraries, Google Cloud, and datasets — sharing discoveries, tips, and dataset/app announcements.
+  </div>
+</div>
 
 
 <div class="quarto-title-meta">
@@ -182,6 +199,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   
 
+<div>
+  <div class="keywords">
+    <div class="block-title">Keywords</div>
+    <p>Earth Engine, Geospatial Analysis, Python, Google Cloud, Remote Sensing, Raster Data, Datasets</p>
+  </div>
+</div>
 
 </header>
 
@@ -207,7 +230,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>In this post, we’ll walk through a few examples with Python in Quarto. The code below renders static images and charts suitable for Medium or other static sites.</p>
 <section id="example-1-create-a-cloud-free-annual-mosaic" class="level3">
 <h3 class="anchored" data-anchor-id="example-1-create-a-cloud-free-annual-mosaic">Example 1: Create a Cloud-Free Annual Mosaic</h3>
-<div id="10937bf7" class="cell" data-execution_count="2">
+<div id="5e8647bb" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># True-color composite for Switzerland in 2023</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>collection <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL'</span>) <span class="op">\</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2023-01-01'</span>, <span class="st">'2024-01-01'</span>)</span>
@@ -218,7 +241,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>vis_params <span class="op">=</span> {<span class="st">'bands'</span>: [<span class="st">'red'</span>, <span class="st">'green'</span>, <span class="st">'blue'</span>], <span class="st">'min'</span>: <span class="dv">0</span>, <span class="st">'max'</span>: <span class="fl">0.3</span>}</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>switzerland_roi <span class="op">=</span> ee.Geometry.Rectangle([<span class="fl">5.9</span>, <span class="fl">45.8</span>, <span class="fl">10.5</span>, <span class="fl">47.8</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="821ff092" class="cell" data-execution_count="3">
+<div id="29906a68" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -230,7 +253,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="example-2-monitor-vegetation-health-with-8-day-ndvi-static-chart" class="level3">
 <h3 class="anchored" data-anchor-id="example-2-monitor-vegetation-health-with-8-day-ndvi-static-chart">Example 2: Monitor Vegetation Health with 8-Day NDVI (Static Chart)</h3>
-<div id="2bf596f6" class="cell" data-execution_count="4">
+<div id="27878d81" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Point in Sacramento area</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>point <span class="op">=</span> ee.Geometry.Point([<span class="op">-</span><span class="fl">121.5</span>, <span class="fl">38.5</span>])</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>collection_ndvi <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI'</span>) <span class="op">\</span></span>
@@ -254,26 +277,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>).properties(title<span class="op">=</span><span class="st">'8-Day NDVI Time Series (Sacramento 2023)'</span>)</span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>chart</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="4">
 
 <style>
-  #altair-viz-07f1b236f9d446bfbec34d602010a139.vega-embed {
+  #altair-viz-5cf94a4dc64e44288d9f9e9b58ed37cf.vega-embed {
     width: 100%;
     display: flex;
   }
 
-  #altair-viz-07f1b236f9d446bfbec34d602010a139.vega-embed details,
-  #altair-viz-07f1b236f9d446bfbec34d602010a139.vega-embed details summary {
+  #altair-viz-5cf94a4dc64e44288d9f9e9b58ed37cf.vega-embed details,
+  #altair-viz-5cf94a4dc64e44288d9f9e9b58ed37cf.vega-embed details summary {
     position: relative;
   }
 </style>
-<div id="altair-viz-07f1b236f9d446bfbec34d602010a139"></div>
+<div id="altair-viz-5cf94a4dc64e44288d9f9e9b58ed37cf"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-07f1b236f9d446bfbec34d602010a139") {
-      outputDiv = document.getElementById("altair-viz-07f1b236f9d446bfbec34d602010a139");
+    if (outputDiv.id !== "altair-viz-5cf94a4dc64e44288d9f9e9b58ed37cf") {
+      outputDiv = document.getElementById("altair-viz-5cf94a4dc64e44288d9f9e9b58ed37cf");
     }
 
     const paths = {
@@ -328,7 +351,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="example-3-assess-wildfire-burn-severity-with-nbr" class="level3">
 <h3 class="anchored" data-anchor-id="example-3-assess-wildfire-burn-severity-with-nbr">Example 3: Assess Wildfire Burn Severity with NBR</h3>
-<div id="831c9606" class="cell" data-execution_count="5">
+<div id="75b6927b" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize Normalized Burn Ratio (NBR) difference for the Dixie Fire, Aug 2021</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>prefire <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR'</span>) <span class="op">\</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  .filterDate(<span class="st">'2021-06-15'</span>, <span class="st">'2021-07-15'</span>).mean()</span>
@@ -341,7 +364,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>vis <span class="op">=</span> {<span class="st">'min'</span>: <span class="op">-</span><span class="fl">0.1</span>, <span class="st">'max'</span>: <span class="dv">1</span>, <span class="st">'palette'</span>: palette}</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>region <span class="op">=</span> ee.Geometry.Rectangle([<span class="op">-</span><span class="fl">122.5</span>, <span class="fl">39.8</span>, <span class="op">-</span><span class="fl">120.5</span>, <span class="fl">40.5</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="dfb13f54" class="cell" data-execution_count="6">
+<div id="df824b01" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -448,6 +471,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
         }
       }
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
@@ -762,8 +790,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   });
   </script>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2025 Justin Braaten</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>Built with Quarto</p>
+</div>
+  </div>
+</footer>
 
 
 
 
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>

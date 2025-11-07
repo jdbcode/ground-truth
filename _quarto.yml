@@ -2,10 +2,31 @@ project:
   type: website
   output-dir: docs
 
+metadata:
+  keywords: [Earth Engine, Geospatial Analysis, Python, Google Cloud, Remote Sensing, Raster Data, Datasets]
+  description: "Short, rough-cut notes on Earth Engine, geospatial analysis, Python libraries, Google Cloud, and datasets — sharing discoveries, tips, and dataset/app announcements."
+
 website:
-  title: "Gaia Lens Blog"
+  title: "Ground Truth"
+  description: "Earth Engine, geospatial analysis, Python, and datasets — b-sides and quick notes."
   navbar:
     left:
       - href: index.qmd
         text: Home
+  page-footer:
+    left: "© 2025 Justin Braaten"
+    right: "Built with Quarto"
+    border: true
+
+format:
+  html:
+    theme:
+      - cosmo
+      - styles/earth.scss
+    toc: true
+    toc-depth: 2
+    smooth-scroll: true
+    code-copy: true
+    anchor-sections: true
+    link-external-newwindow: true
 

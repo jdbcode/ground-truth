@@ -1,0 +1,38 @@
+---
+# Quick-start template for new, short posts
+# Usage: copy this file into a new dated folder under posts/, e.g.
+# posts/2025-11-07-my-topic/index.qmd
+
+# Replace me
+title: "Title of the quick note"
+date: today
+author: Justin Braaten
+# Choose 1–3 categories
+categories: [Earth Engine, Geospatial, Python]
+# 1–2 sentence summary (good for Medium import and SEO)
+description: "Brief description of what this post covers."
+# Optional tags/keywords for SEO
+keywords: [Earth Engine, Remote Sensing, Raster, Google Cloud]
+# Turn off polish pressure — keep it short and useful
+# draft: true   # Uncomment while drafting to exclude from listing
+format: html
+---
+
+A short, b-side style note about something I learned or built.
+
+## Context
+
+What is this and why it might be useful.
+
+## Snippets
+
+```{python}
+#| echo: true
+# Minimal reproducible code goes here
+print("hello, ground-truth")
+```
+
+## Links
+- Dataset:
+- Docs:
+- Repo:

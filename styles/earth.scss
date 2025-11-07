@@ -1,0 +1,104 @@
+/*-- scss:defaults --*/
+// Earth-inspired palette for geospatial + remote sensing vibe
+// Adjust Bootstrap variables first, then add small component overrides.
+
+// Palette
+$earth-green: #2e7d32;   // primary: vegetation
+$forest-green: #1b5e20;  // success accents
+$deep-blue:   #1565c0;   // secondary: water/sky
+$cloud-blue:  #0277bd;   // info accents
+$warm-clay:   #8d6e63;   // muted neutral
+$sun-gold:    #f9a825;   // warning
+$ember:       #d84315;   // danger
+$slate-900:   #263238;   // dark text
+$slate-50:    #f6f7f7;   // light background
+
+// Bootstrap color assignments
+$primary:   $earth-green;
+$secondary: $deep-blue;
+$success:   $forest-green;
+$info:      $cloud-blue;
+$warning:   $sun-gold;
+$danger:    $ember;
+$dark:      $slate-900;
+$light:     $slate-50;
+
+// Typography tweaks
+$headings-color: $slate-900;
+$body-color:     #27313a;
+$link-color:     $deep-blue;
+$link-hover-color: darken($deep-blue, 8%);
+
+// Code blocks
+$code-color:      #0f4a85;
+$code-bg:         #f4f8fb;
+$pre-color:       $slate-900;
+$pre-bg:          #f4f6f6;
+
+// Subtle rounded corners
+$border-radius: .45rem;
+$border-radius-sm: .35rem;
+$border-radius-lg: .55rem;
+
+/*-- scss:rules --*/
+// Component-level refinements after Bootstrap loads
+// (Quarto will compile this with the chosen theme.)
+
+// Page chrome
+.navbar {
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+// Listings and categories
+.quarto-categories .quarto-category {
+  background: rgba($deep-blue, .08);
+  color: $deep-blue;
+  border: 1px solid rgba($deep-blue, .15);
+}
+.quarto-title .quarto-categories .quarto-category {
+  background: rgba($earth-green, .08);
+  color: $earth-green;
+  border-color: rgba($earth-green, .15);
+}
+
+.card, .callout {
+  border-color: rgba(0,0,0,.06);
+}
+
+// Code blocks and inline code
+pre code {
+  background: $pre-bg;
+  border-radius: .4rem;
+}
+code:not(pre code) {
+  background: $code-bg;
+  padding: .1rem .3rem;
+  border-radius: .25rem;
+}
+
+// Links inside article body
+.main-content a {
+  text-decoration: none;
+  border-bottom: 1px dashed rgba($deep-blue, .4);
+}
+.main-content a:hover {
+  border-bottom-style: solid;
+}
+
+// Footer
+.footer {
+  background: #fafbfb;
+}
+
+// Ensure images and figures are responsive within article body
+img, .figure img, figure img, .quarto-figure img {
+  max-width: 100%;
+  height: auto;
+}
+figure, .quarto-figure {
+  margin: 1rem auto;
+}
