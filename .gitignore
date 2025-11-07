@@ -1,0 +1,21 @@
+# Quarto build artifacts
+_site/
+_freeze/
+
+# Quarto post render assets
+posts/**/index_files/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# EE creds (never commit real keys)
+gee-key.json
+
+# OS/editor cruft
+.DS_Store
+.vscode/
+
+/.quarto/
+**/*.quarto_ipynb

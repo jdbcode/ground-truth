@@ -1,0 +1,171 @@
+---
+title: "Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine"
+date: 2025-11-06
+author: Justin Braaten
+format: html
+categories: [Earth Engine, Landsat, Remote Sensing]
+---
+
+Landsat provides an invaluable, decades-long record of our changing planet, but working with it often involves the time-consuming tasks of filtering scenes, masking clouds and shadows, and combining images to get a clear view of the Earth's surface. What if you could skip those steps and jump straight into analysis with ready-to-use, temporally consistent data?
+
+We're thrilled to announce a new suite of Landsat composite collections in Google Earth Engine, designed to save you time and effort. Based on Landsat Collection 2, Tier 1, Level-2 Surface Reflectance data, these new collections provide consistently processed, cloud-masked composites spanning data from Landsat 4, 5, 7, 8, and 9 from 1984 to the present.
+
+## Cloud-Free Data, Ready for Analysis
+
+Each composite is created by applying rigorous cloud, shadow, and aerosol masking to all available scenes within a given time interval, then selecting the most recent clear pixel for each location. The result is a set of spatially complete, temporally dense image collections perfect for time-series analysis, land cover mapping, and environmental monitoring, without the preprocessing headache.
+
+We are releasing composites at three temporal resolutions—8-day, 32-day, and annual—to meet various monitoring needs. For each resolution, we offer two types of collections:
+
+- Surface Reflectance (SR) Composites: blue, green, red, NIR, SWIR1, SWIR2, and thermal surface temperature.
+	- `LANDSAT/COMPOSITES/C02/T1_L2_8DAY`
+	- `LANDSAT/COMPOSITES/C02/T1_L2_32DAY`
+	- `LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL`
+- Spectral Index Composites: BAI, EVI, NBR, NDVI, NDWI.
+	- For example: `LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI`, `LANDSAT/COMPOSITES/C02/T1_L2_32DAY_BAI`, etc.
+
+In this post, we'll walk through a few examples with Python in Quarto. The code below renders static images and charts suitable for Medium or other static sites.
+
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
+import os
+from pathlib import Path
+import ee
+import pandas as pd
+import altair as alt
+import matplotlib.pyplot as plt
+from PIL import Image
+import io
+import urllib.request
+
+
+def init_ee():
+    """Initialize Earth Engine for local or CI.
+    In CI, set env vars EE_SERVICE_ACCOUNT and EE_KEY_PATH (path to JSON key).
+    """
+    sa = os.getenv("EE_SERVICE_ACCOUNT")
+    key_path = os.getenv("EE_KEY_PATH")
+    try:
+        if sa and key_path and Path(key_path).exists():
+            creds = ee.ServiceAccountCredentials(sa, key_path)
+            ee.Initialize(creds)
+        else:
+            ee.Initialize()
+    except Exception as e:
+        # Local fallback to interactive auth
+        print(f"EE init failed, trying authenticate: {e}")
+        ee.Authenticate()
+        ee.Initialize()
+
+
+def display_ee_image(ee_image, vis_params, region, title=''):
+    """Display an Earth Engine image using matplotlib (Quarto will auto-save it).
+    
+    This uses Quarto's native figure handling instead of manual file saves.
+    """
+    try:
+        # Get thumbnail URL from Earth Engine
+        url = ee_image.getThumbURL({
+            'region': region,
+            'dimensions': 800,
+            'format': 'png',
+            **vis_params
+        })
+        
+        # Fetch and display using matplotlib
+        with urllib.request.urlopen(url) as response:
+            img_data = response.read()
+        
+        img = Image.open(io.BytesIO(img_data))
+        
+        fig, ax = plt.subplots(figsize=(10, 8))
+        ax.imshow(img)
+        ax.axis('off')
+        if title:
+            ax.set_title(title, fontsize=14, pad=10)
+        plt.tight_layout()
+        plt.show()
+    except Exception as e:
+        print(f"Error displaying image: {e}")
+        raise
+
+
+init_ee()
+```
+
+### Example 1: Create a Cloud-Free Annual Mosaic
+
+```{python}
+# True-color composite for Switzerland in 2023
+collection = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL') \
+    .filterDate('2023-01-01', '2024-01-01')
+
+# Each annual composite collection contains one image per year.
+image = collection.first()
+
+vis_params = {'bands': ['red', 'green', 'blue'], 'min': 0, 'max': 0.3}
+switzerland_roi = ee.Geometry.Rectangle([5.9, 45.8, 10.5, 47.8])
+```
+
+```{python}
+#| echo: false
+display_ee_image(image, vis_params, switzerland_roi, 
+                 title='Switzerland 2023 - Annual Composite')
+```
+
+### Example 2: Monitor Vegetation Health with 8-Day NDVI (Static Chart)
+
+```{python}
+# Point in Sacramento area
+point = ee.Geometry.Point([-121.5, 38.5])
+collection_ndvi = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI') \
+	.filterDate('2023-01-01', '2024-01-01')
+
+def extract_ndvi(img):
+	date = img.date().format("YYYY-MM-dd")
+	ndvi = img.reduceRegion(reducer=ee.Reducer.mean(), geometry=point, scale=30).get('NDVI')
+	return ee.Feature(None, {'date': date, 'ndvi': ndvi})
+
+# Bring small series client-side for plotting
+timeseries = collection_ndvi.map(extract_ndvi).getInfo()
+rows = [f['properties'] for f in timeseries['features']]
+df = pd.DataFrame(rows)
+df['date'] = pd.to_datetime(df['date'])
+
+chart = alt.Chart(df).mark_line(point=True).encode(
+		x='date:T',
+		y=alt.Y('ndvi:Q', title='NDVI'),
+		tooltip=['date', 'ndvi']
+).properties(title='8-Day NDVI Time Series (Sacramento 2023)')
+
+chart
+```
+
+### Example 3: Assess Wildfire Burn Severity with NBR
+
+```{python}
+# Visualize Normalized Burn Ratio (NBR) difference for the Dixie Fire, Aug 2021
+prefire = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR') \
+  .filterDate('2021-06-15', '2021-07-15').mean()
+postfire = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR') \
+  .filterDate('2021-08-15', '2021-09-15').mean()
+
+dNBR = prefire.subtract(postfire)
+
+palette = ['#006400', '#F0E68C', '#8B0000']
+vis = {'min': -0.1, 'max': 1, 'palette': palette}
+region = ee.Geometry.Rectangle([-122.5, 39.8, -120.5, 40.5])
+```
+
+```{python}
+#| echo: false
+display_ee_image(dNBR, vis, region, 
+                 title='Dixie Fire dNBR (Aug 2021)')
+```
+
+## Get Started Today!
+
+These new Landsat composite collections are now available in the Earth Engine Data Catalog. Search for `LANDSAT/COMPOSITES/C02` in the catalog or visit datasets such as `LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL`.
+
+Spend less time preprocessing and more time on discovery. We hope these new collections accelerate your Landsat-based research and applications in Google Earth Engine!

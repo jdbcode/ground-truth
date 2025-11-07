@@ -1,0 +1,10 @@
+geemap
+earthengine-api
+altair
+pandas
+numpy
+requests
+jupyter
+ipykernel
+matplotlib
+pillow

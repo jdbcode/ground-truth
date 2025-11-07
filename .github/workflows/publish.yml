@@ -1,0 +1,142 @@
+name: Render and Publish to Medium
+
+on:
+  push:
+    paths:
+      - 'posts/**/*.qmd'
+      - 'scripts/publish_to_medium.py'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Configure Earth Engine credentials (if provided)
+        shell: bash
+        run: |
+          if [ -n "${{ secrets.EE_PRIVATE_KEY_JSON }}" ] && [ -n "${{ secrets.EE_SERVICE_ACCOUNT }}" ]; then
+            echo "Writing EE service account key to gee-key.json"
+            echo "${{ secrets.EE_PRIVATE_KEY_JSON }}" > gee-key.json
+            echo "EE_SERVICE_ACCOUNT=${{ secrets.EE_SERVICE_ACCOUNT }}" >> $GITHUB_ENV
+            echo "EE_KEY_PATH=$GITHUB_WORKSPACE/gee-key.json" >> $GITHUB_ENV
+          else
+            echo "No EE credentials provided; relying on default auth (may fail in CI)."
+          fi
+
+      - name: Determine changed posts
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHANGED=$(git diff --name-only "${{ github.event.before }}" "${{ github.event.after }}" -- 'posts/**/*.qmd' | tr '\n' ' ')
+          if [ -z "$CHANGED" ]; then
+            # fallback for squash merges or initial pushes
+            CHANGED=$(git ls-files 'posts/**/*.qmd' | tr '\n' ' ')
+          fi
+          echo "Changed QMD files: $CHANGED"
+          echo "files=$CHANGED" >> $GITHUB_OUTPUT
+
+      - name: Render Quarto to GFM for changed posts
+        if: steps.changes.outputs.files != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in ${{ steps.changes.outputs.files }}; do
+            echo "Rendering $f to GFM"
+            quarto render "$f" --to gfm
+          done
+
+      - name: Render self-contained HTML for import (changed posts)
+        if: steps.changes.outputs.files != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in ${{ steps.changes.outputs.files }}; do
+            echo "Rendering $f to self-contained HTML for Medium import"
+            dir="$(dirname "$f")"
+            base="$(basename "$f")"
+            (
+              cd "$dir"
+              # Create a self-contained HTML (embeds images) to ensure Medium import has assets
+              quarto render "$base" --to html -M format.html.self-contained=true --output "medium-import.html"
+            )
+            test -f "$dir/medium-import.html" || (echo "Expected $dir/medium-import.html not found" && exit 1)
+          done
+
+      - name: Upload Medium import HTML as artifact
+        if: steps.changes.outputs.files != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: medium-import-html-${{ github.sha }}
+          if-no-files-found: error
+          path: |
+            posts/**/medium-import.html
+
+      - name: Medium import instructions (job summary)
+        if: steps.changes.outputs.files != ''
+        shell: bash
+        run: |
+          {
+            echo "## Medium import"
+            echo
+            echo "Use Medium's Import tool: https://medium.com/p/import"
+            echo
+            echo "Imported files produced for these posts:"
+            for f in ${{ steps.changes.outputs.files }}; do
+              dir=$(dirname "$f")
+              if [ -f "$dir/medium-import.html" ]; then
+                echo "- $dir/medium-import.html"
+              fi
+            done
+            echo
+            echo "Download the 'medium-import-html-${{ github.sha }}' artifact from this workflow run and upload medium-import.html to Medium."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit rendered assets (MD + index_files) on main (only when token exists)
+        if: ${{ steps.changes.outputs.files != '' && github.ref_name == 'main' && (secrets.MEDIUM_TOKEN != '' || secrets.MEDIUM_INTEGRATION_TOKEN != '') }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions'
+          git config user.email 'github-actions@users.noreply.github.com'
+          # Force-add index_files even though it's ignored, so Medium can fetch images via raw GitHub URLs
+          git add posts/**/*.md || true
+          git add -f posts/**/index_files/ || true
+          git commit -m "Auto-render Quarto outputs" || echo "No changes to commit"
+          git push || echo "Nothing to push"
+
+      - name: Publish Draft(s) to Medium (main only, only when token exists)
+        if: ${{ steps.changes.outputs.files != '' && github.ref_name == 'main' && (secrets.MEDIUM_TOKEN != '' || secrets.MEDIUM_INTEGRATION_TOKEN != '') }}
+        env:
+          MEDIUM_TOKEN: ${{ secrets.MEDIUM_TOKEN }}
+          MEDIUM_INTEGRATION_TOKEN: ${{ secrets.MEDIUM_INTEGRATION_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in ${{ steps.changes.outputs.files }}; do
+            md="${f%.qmd}.md"
+            if [ -f "$md" ]; then
+              echo "Publishing $md to Medium"
+              python scripts/publish_to_medium.py --md "$md"
+            else
+              echo "No markdown found for $f (expected $md)"
+            fi
+          done
