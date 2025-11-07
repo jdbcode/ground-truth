@@ -37,23 +37,22 @@ python -c "import ee; ee.Authenticate()"
 
 1. Create or edit a post in `posts/<slug>/index.qmd`
 
-2. Render the post to Markdown:
-
-```bash
-quarto render posts/<slug>/index.qmd --to gfm
-```
-
-3. Render a self-contained HTML for Medium import:
+2. From the post folder, render outputs next to the source (avoids writing to `_site/`):
 
 ```bash
 cd posts/<slug>
-quarto render index.qmd --to html -M self-contained:true --output medium-import.html
+
+# Render Markdown next to index.qmd
+quarto render index.qmd --to gfm --output index.md --output-dir .
+
+# Render self-contained HTML for Medium import next to index.qmd
+quarto render index.qmd --to html -M self-contained:true --output medium-import.html --output-dir .
 ```
 
-4. Preview the rendered Markdown locally:
+3. Preview locally (served preview lives under `_site/`, but your committed files stay in the post folder):
 
 ```bash
-quarto preview posts/<slug>/index.qmd
+quarto preview index.qmd
 ```
 
 Or preview the entire site:
