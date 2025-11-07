@@ -108,35 +108,5 @@ jobs:
             echo "Download the 'medium-import-html-${{ github.sha }}' artifact from this workflow run and upload medium-import.html to Medium."
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Commit rendered assets (MD + index_files) on main (only when token exists)
-        if: ${{ steps.changes.outputs.files != '' && github.ref_name == 'main' && (secrets.MEDIUM_TOKEN != '' || secrets.MEDIUM_INTEGRATION_TOKEN != '') }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions'
-          git config user.email 'github-actions@users.noreply.github.com'
-          # Force-add index_files even though it's ignored, so Medium can fetch images via raw GitHub URLs
-          git add posts/**/*.md || true
-          git add -f posts/**/index_files/ || true
-          git commit -m "Auto-render Quarto outputs" || echo "No changes to commit"
-          git push || echo "Nothing to push"
-
-      - name: Publish Draft(s) to Medium (main only, only when token exists)
-        if: ${{ steps.changes.outputs.files != '' && github.ref_name == 'main' && (secrets.MEDIUM_TOKEN != '' || secrets.MEDIUM_INTEGRATION_TOKEN != '') }}
-        env:
-          MEDIUM_TOKEN: ${{ secrets.MEDIUM_TOKEN }}
-          MEDIUM_INTEGRATION_TOKEN: ${{ secrets.MEDIUM_INTEGRATION_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_REF_NAME: ${{ github.ref_name }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          for f in ${{ steps.changes.outputs.files }}; do
-            md="${f%.qmd}.md"
-            if [ -f "$md" ]; then
-              echo "Publishing $md to Medium"
-              python scripts/publish_to_medium.py --md "$md"
-            else
-              echo "No markdown found for $f (expected $md)"
-            fi
-          done
+      # Note: We intentionally omit committing rendered assets or publishing via Medium API,
+      # since Medium no longer supports new API tokens. Import via artifact instead.

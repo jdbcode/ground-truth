@@ -1,11 +1,11 @@
 # Ground Truth
 
-Quarto-first blog workspace with an automated pipeline to post rendered Markdown to Medium. Each post is a self-contained directory under `posts/` with its own `index.qmd` and generated `index_files/` assets.
+Quarto-first blog workspace with an automated pipeline to produce import-ready HTML for Medium. Each post is a self-contained directory under `posts/` with its own `index.qmd`.
 
 ## Key pieces
 
-- `.github/workflows/publish.yml` — CI that renders changed posts to GitHub Flavored Markdown (GFM) and publishes drafts to Medium.
-- `scripts/publish_to_medium.py` — Converts rendered Markdown to a Medium draft, rewriting image paths to raw GitHub URLs.
+- `.github/workflows/publish.yml` — CI that renders changed posts and uploads a self-contained HTML artifact for easy import into Medium (no API token required).
+- `scripts/publish_to_medium.py` — Legacy script for Medium’s deprecated API (kept for historical reference; not used by CI).
 - `posts/` — Self-contained post bundles (e.g., `2025-11-06-landsat-composites/`).
 - `_quarto.yml` — Quarto website config, ready for future self-hosted site.
 - `requirements.txt` — Python deps for local dev and CI, including Earth Engine, geemap, Altair.
@@ -28,21 +28,21 @@ pip install -r requirements.txt
 quarto render
 ```
 
-## Medium publishing (CI)
+## Medium publishing (Import flow)
 
-Set repository secrets:
+No tokens required. On push to `posts/**/*.qmd`:
 
-- `MEDIUM_TOKEN` (or `MEDIUM_INTEGRATION_TOKEN`) — Medium API token
-- Optional Earth Engine service account (for non-interactive CI renders):
-	- `EE_SERVICE_ACCOUNT` — service account email
-	- `EE_PRIVATE_KEY_JSON` — JSON key contents (paste full JSON)
+- CI detects changed post(s)
+- Renders a self-contained HTML file for each post: `posts/<slug>/medium-import.html`
+- Uploads those HTML files as an artifact named `medium-import-html-<sha>`
 
-Workflow behavior on push to `posts/**/*.qmd`:
+To publish on Medium:
 
-- Detect changed post(s)
-- `quarto render ... --to gfm` to produce `index.md` + `index_files/`
-- Commit the assets back to the branch
-- Publish a draft to Medium using the rendered markdown
+1. Open the Actions run for your commit.
+2. Download the `medium-import-html-<sha>` artifact.
+3. Go to https://medium.com/p/import and upload the relevant `medium-import.html`.
+
+Optional: If you later obtain a legacy Medium token, you can re-enable API-based publishing by adding the relevant steps back to the workflow.
 
 ## Earth Engine in CI
 
@@ -50,6 +50,6 @@ Posts can auto-auth using a service account if the two EE secrets are provided. 
 
 ## Notes
 
-- `posts/**/index_files/` and build caches are ignored via `.gitignore`. The workflow commits rendered assets explicitly so Medium can fetch images via raw GitHub URLs.
+- `posts/**/index_files/` and build caches are ignored via `.gitignore`. For Medium import, CI produces a self-contained HTML file that embeds assets.
 - Keep posts self-contained. Place any small CSVs or static images alongside `index.qmd` in the same directory.
 
