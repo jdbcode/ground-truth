@@ -20,3 +20,9 @@ gee-key.json
 
 /.quarto/
 **/*.quarto_ipynb
+
+# Quarto intermediate files (just in case)
+posts/**/*.md
+posts/**/*.ipynb
+posts/**/*.knit.md
+*_cache/
