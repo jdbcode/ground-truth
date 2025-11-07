@@ -1,13 +1,12 @@
 # Ground Truth
 
-Quarto-first blog workspace optimized for local development and Medium publishing. Each post is a self-contained directory under `posts/` with its own `index.qmd`.
+Quarto-first blog workspace optimized for local development and Medium publishing (Markdown-only flow). Each post is a self-contained directory under `posts/` with its own `index.qmd`.
 
 ## Key pieces
 
 - `posts/` — Self-contained post bundles (e.g., `2025-11-06-landsat-composites/`), each with:
   - `index.qmd` — Source post
   - `index.md` — Rendered GitHub Flavored Markdown
-  - `medium-import.html` — Self-contained HTML for Medium import
   - `index_files/` — Generated assets (images, plots)
 - `_quarto.yml` — Quarto website config, ready for future self-hosted site
 - `requirements.txt` — Python deps including Earth Engine, geemap, Altair
@@ -37,19 +36,16 @@ python -c "import ee; ee.Authenticate()"
 
 1. Create or edit a post in `posts/<slug>/index.qmd`
 
-2. From the post folder, render outputs next to the source (avoids writing to `_site/`):
+2. From the post folder, render Markdown next to the source (avoids writing to `_site/`):
 
 ```bash
 cd posts/<slug>
 
 # Render Markdown next to index.qmd
 quarto render index.qmd --to gfm --output index.md --output-dir .
-
-# Render self-contained HTML for Medium import next to index.qmd
-quarto render index.qmd --to html -M self-contained:true --output medium-import.html --output-dir .
 ```
 
-3. Preview locally (served preview lives under `_site/`, but your committed files stay in the post folder):
+3. Preview locally (served preview lives under `_site/`, but your committed Markdown stays in the post folder):
 
 ```bash
 quarto preview index.qmd
@@ -61,13 +57,25 @@ Or preview the entire site:
 quarto preview
 ```
 
-### Publishing to Medium
+### Publishing to Medium (Markdown flow)
 
-After rendering locally:
+After rendering locally, convert image paths to absolute raw GitHub URLs and copy/paste to Medium:
 
-1. Navigate to https://medium.com/p/import
-2. Upload `posts/<slug>/medium-import.html`
-3. Review and publish
+```bash
+# Make sure images are committed and pushed so raw URLs resolve on Medium
+git add posts/<slug>/index_files/
+git commit -m "Post assets"
+git push
+
+# Generate Medium-ready Markdown with absolute image URLs
+python scripts/prepare_medium_markdown.py \
+  --md posts/<slug>/index.md \
+  --repo jdbcode/ground-truth \
+  --branch main \
+  --out posts/<slug>/medium.md
+
+# Open posts/<slug>/medium.md and copy/paste into Medium's editor
+```
 
 ### Committing changes
 
@@ -94,6 +102,6 @@ quarto render
 
 - Keep posts self-contained: place CSVs, static images, etc. alongside `index.qmd`
 - `_site/` and `_freeze/` are ignored (build caches)
-- All rendered post assets are versioned in Git for easy access and Medium import
+- All rendered post assets (Markdown + index_files) are versioned in Git for easy access and Medium publishing
 
 
