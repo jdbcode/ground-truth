@@ -2,6 +2,11 @@
 _site/
 _freeze/
 
+# Quarto site artifacts (root-level only; these belong in _site/)
+/index.html
+/search.json
+/site_libs/
+
 # Python
 __pycache__/
 *.pyc

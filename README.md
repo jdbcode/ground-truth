@@ -87,7 +87,7 @@ git commit -m "Add/update post: <title>"
 git push
 ```
 
-Rendered outputs (`*.md`, `medium-import.html`, `index_files/`) are tracked so they're always available from GitHub.
+Rendered outputs (`*.md`, `index_files/`) are tracked so they're always available from GitHub.
 
 ## Future: Self-hosted site
 
