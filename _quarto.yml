@@ -1,6 +1,9 @@
 project:
   type: website
-  output-dir: _site
+  output-dir: docs
+  render:
+    - index.qmd
+    - posts/*/index.qmd
 
 website:
   title: "Gaia Lens Blog"
@@ -10,7 +13,3 @@ website:
         text: Home
       - about.qmd
 
-listing:
-  contents: posts
-  sort: "date desc"
-  type: default

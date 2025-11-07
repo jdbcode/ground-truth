@@ -1,6 +1,6 @@
 # Ground Truth
 
-Quarto-first blog workspace optimized for local development and Medium publishing (Markdown-only flow). Each post is a self-contained directory under `posts/` with its own `index.qmd`.
+Quarto-first blog workspace optimized for local development, GitHub Pages hosting (`docs/`), and Medium publishing (Markdown-only flow). Each post is a self-contained directory under `posts/` with its own `index.qmd`.
 
 ## Key pieces
 
@@ -8,7 +8,7 @@ Quarto-first blog workspace optimized for local development and Medium publishin
   - `index.qmd` — Source post
   - `index.md` — Rendered GitHub Flavored Markdown
   - `index_files/` — Generated assets (images, plots)
-- `_quarto.yml` — Quarto website config, ready for future self-hosted site
+- `_quarto.yml` — Quarto website config (output to `docs/` for GitHub Pages)
 - `requirements.txt` — Python deps including Earth Engine, geemap, Altair
 - `scripts/publish_to_medium.py` — Legacy script for Medium's deprecated API (kept for reference)
 
@@ -45,7 +45,7 @@ cd posts/<slug>
 quarto render index.qmd --to gfm --output index.md --output-dir .
 ```
 
-3. Preview locally (served preview lives under `_site/`, but your committed Markdown stays in the post folder):
+3. Preview locally (served preview lives under a temp server, final site build goes to `docs/`):
 
 ```bash
 quarto preview index.qmd
@@ -89,19 +89,31 @@ git push
 
 Rendered outputs (`*.md`, `index_files/`) are tracked so they're always available from GitHub.
 
-## Future: Self-hosted site
+## GitHub Pages deployment (docs/)
 
-To publish the full Quarto site to GitHub Pages:
+The site output directory is `docs/`. To (re)build and publish:
 
 ```bash
 quarto render
-# Then commit _site/ or deploy via GitHub Pages workflow
+git add docs/
+git commit -m "Site build"
+git push
 ```
+
+Then enable GitHub Pages: Repository Settings → Pages → Build and deployment → Deploy from branch → Branch: `main`, Folder: `/docs`.
+
+After activation, each post will have a URL like:
+
+```
+https://<username>.github.io/ground-truth/posts/<slug>/index.html
+```
+
+You can use that URL with Medium’s Import tool (https://medium.com/p/import) instead of generating separate HTML.
 
 ## Notes
 
 - Keep posts self-contained: place CSVs, static images, etc. alongside `index.qmd`
-- `_site/` and `_freeze/` are ignored (build caches)
+- `_freeze/` is ignored (execution cache); `docs/` is committed for Pages
 - All rendered post assets (Markdown + index_files) are versioned in Git for easy access and Medium publishing
 
 

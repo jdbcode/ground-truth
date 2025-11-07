@@ -1,0 +1,12 @@
+---
+title: "Gaia Lens Blog"
+format: html
+---
+
+Welcome to the Gaia Lens Blog. Recent posts:
+
+::: {.listing}
+#| contents: posts
+#| sort: "date desc"
+#| type: default
+:::

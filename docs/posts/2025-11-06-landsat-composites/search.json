@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Gaia Lens Blog",
+    "section": "",
+    "text": "Welcome to the Gaia Lens Blog. Recent posts:\n\n#| contents: posts #| sort: “date desc” #| type: default"
+  },
+  {
+    "objectID": "posts/2025-11-06-landsat-composites/index.html",
+    "href": "posts/2025-11-06-landsat-composites/index.html",
+    "title": "Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine",
+    "section": "",
+    "text": "Landsat provides an invaluable, decades-long record of our changing planet, but working with it often involves the time-consuming tasks of filtering scenes, masking clouds and shadows, and combining images to get a clear view of the Earth’s surface. What if you could skip those steps and jump straight into analysis with ready-to-use, temporally consistent data?\nWe’re thrilled to announce a new suite of Landsat composite collections in Google Earth Engine, designed to save you time and effort. Based on Landsat Collection 2, Tier 1, Level-2 Surface Reflectance data, these new collections provide consistently processed, cloud-masked composites spanning data from Landsat 4, 5, 7, 8, and 9 from 1984 to the present."
+  },
+  {
+    "objectID": "posts/2025-11-06-landsat-composites/index.html#cloud-free-data-ready-for-analysis",
+    "href": "posts/2025-11-06-landsat-composites/index.html#cloud-free-data-ready-for-analysis",
+    "title": "Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine",
+    "section": "Cloud-Free Data, Ready for Analysis",
+    "text": "Cloud-Free Data, Ready for Analysis\nEach composite is created by applying rigorous cloud, shadow, and aerosol masking to all available scenes within a given time interval, then selecting the most recent clear pixel for each location. The result is a set of spatially complete, temporally dense image collections perfect for time-series analysis, land cover mapping, and environmental monitoring, without the preprocessing headache.\nWe are releasing composites at three temporal resolutions—8-day, 32-day, and annual—to meet various monitoring needs. For each resolution, we offer two types of collections:\n\nSurface Reflectance (SR) Composites: blue, green, red, NIR, SWIR1, SWIR2, and thermal surface temperature.\n\nLANDSAT/COMPOSITES/C02/T1_L2_8DAY\nLANDSAT/COMPOSITES/C02/T1_L2_32DAY\nLANDSAT/COMPOSITES/C02/T1_L2_ANNUAL\n\nSpectral Index Composites: BAI, EVI, NBR, NDVI, NDWI.\n\nFor example: LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI, LANDSAT/COMPOSITES/C02/T1_L2_32DAY_BAI, etc.\n\n\nIn this post, we’ll walk through a few examples with Python in Quarto. The code below renders static images and charts suitable for Medium or other static sites.\n\nExample 1: Create a Cloud-Free Annual Mosaic\n\n# True-color composite for Switzerland in 2023\ncollection = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL') \\\n    .filterDate('2023-01-01', '2024-01-01')\n\n# Each annual composite collection contains one image per year.\nimage = collection.first()\n\nvis_params = {'bands': ['red', 'green', 'blue'], 'min': 0, 'max': 0.3}\nswitzerland_roi = ee.Geometry.Rectangle([5.9, 45.8, 10.5, 47.8])\n\n\n\n\n\n\n\n\n\n\n\n\nExample 2: Monitor Vegetation Health with 8-Day NDVI (Static Chart)\n\n# Point in Sacramento area\npoint = ee.Geometry.Point([-121.5, 38.5])\ncollection_ndvi = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI') \\\n    .filterDate('2023-01-01', '2024-01-01')\n\ndef extract_ndvi(img):\n    date = img.date().format(\"YYYY-MM-dd\")\n    ndvi = img.reduceRegion(reducer=ee.Reducer.mean(), geometry=point, scale=30).get('NDVI')\n    return ee.Feature(None, {'date': date, 'ndvi': ndvi})\n\n# Bring small series client-side for plotting\ntimeseries = collection_ndvi.map(extract_ndvi).getInfo()\nrows = [f['properties'] for f in timeseries['features']]\ndf = pd.DataFrame(rows)\ndf['date'] = pd.to_datetime(df['date'])\n\nchart = alt.Chart(df).mark_line(point=True).encode(\n        x='date:T',\n        y=alt.Y('ndvi:Q', title='NDVI'),\n        tooltip=['date', 'ndvi']\n).properties(title='8-Day NDVI Time Series (Sacramento 2023)')\n\nchart\n\n\n\n\n\n\n\n\n\nExample 3: Assess Wildfire Burn Severity with NBR\n\n# Visualize Normalized Burn Ratio (NBR) difference for the Dixie Fire, Aug 2021\nprefire = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR') \\\n  .filterDate('2021-06-15', '2021-07-15').mean()\npostfire = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR') \\\n  .filterDate('2021-08-15', '2021-09-15').mean()\n\ndNBR = prefire.subtract(postfire)\n\npalette = ['#006400', '#F0E68C', '#8B0000']\nvis = {'min': -0.1, 'max': 1, 'palette': palette}\nregion = ee.Geometry.Rectangle([-122.5, 39.8, -120.5, 40.5])"
+  },
+  {
+    "objectID": "posts/2025-11-06-landsat-composites/index.html#get-started-today",
+    "href": "posts/2025-11-06-landsat-composites/index.html#get-started-today",
+    "title": "Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine",
+    "section": "Get Started Today!",
+    "text": "Get Started Today!\nThese new Landsat composite collections are now available in the Earth Engine Data Catalog. Search for LANDSAT/COMPOSITES/C02 in the catalog or visit datasets such as LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL.\nSpend less time preprocessing and more time on discovery. We hope these new collections accelerate your Landsat-based research and applications in Google Earth Engine!"
+  }
+]

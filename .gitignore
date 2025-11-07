@@ -1,11 +1,10 @@
-# Quarto build artifacts
+# Quarto build artifacts (keep freeze cache ignored; allow site outputs)
 _site/
 _freeze/
 
-# Quarto site artifacts (root-level only; these belong in _site/)
-/index.html
-/search.json
-/site_libs/
+# Allow committing generated site (docs/) for GitHub Pages
+# (GitHub Pages -> Settings -> Pages -> Build from /docs on main)
+
 
 # Python
 __pycache__/
