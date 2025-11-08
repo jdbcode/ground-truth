@@ -20,8 +20,16 @@ format: html
 
 A short, b-side style note about something I learned or built.
 
-## Context
+```{python}
+import ee
+import pandas as pd
+import altair as alt
+from IPython.display import Image
 
+ee.Initialize(project='ee-braaten')  # Replace with your project ID
+```
+
+## Context
 What is this and why it might be useful.
 
 ## Snippets

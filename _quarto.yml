@@ -18,6 +18,9 @@ website:
     right: "Built with Quarto"
     border: true
 
+execute:
+  dir: project
+
 format:
   html:
     theme:

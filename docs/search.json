@@ -1,30 +1,142 @@
 [
   {
-    "objectID": "posts/2025-11-06-landsat-composites/index.html",
-    "href": "posts/2025-11-06-landsat-composites/index.html",
-    "title": "Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine",
+    "objectID": "AGENT_INSTRUCTIONS.html",
+    "href": "AGENT_INSTRUCTIONS.html",
+    "title": "Ground Truth Blog Agent Instructions",
     "section": "",
-    "text": "Landsat provides an invaluable, decades-long record of our changing planet, but working with it often involves the time-consuming tasks of filtering scenes, masking clouds and shadows, and combining images to get a clear view of the Earth’s surface. What if you could skip those steps and jump straight into analysis with ready-to-use, temporally consistent data?\nWe’re thrilled to announce a new suite of Landsat composite collections in Google Earth Engine, designed to save you time and effort. Based on Landsat Collection 2, Tier 1, Level-2 Surface Reflectance data, these new collections provide consistently processed, cloud-masked composites spanning data from Landsat 4, 5, 7, 8, and 9 from 1984 to the present."
+    "text": "These guidelines help an AI agent draft new short “b-side” posts for the Ground Truth blog.\n\n\n\nShort, discovery-oriented notes (500–900 words typical).\nConversational, pragmatic, not overly polished; prioritize usefulness.\nEmphasize Earth Engine, geospatial analysis, Python workflows, Google Cloud, public geospatial datasets.\nWhen announcing datasets: include collection ID, a minimal usage snippet, and 1–2 suggested applications.\n\n\n\n\n\nTitle (succinct, action or insight oriented)\n1–2 sentence hook/summary.\nMinimal context (what/why).\nOne or more concise examples (image, chart, or stat table).\nOptional: small troubleshooting tip or gotcha.\nLinks (dataset, docs, code repo, related post).\nClosing nudge (“Try it”, “Explore variants”, etc.).\n\n\n\n\nUse this pattern at the start of posts:\nimport ee\nimport pandas as pd\nimport altair as alt\nfrom IPython.display import Image\n\nee.Initialize(project='ee-braaten')  # Replace with your project ID\nFor rendering, use the author’s actual project. Readers will replace with their own.\n\n\n\nUse getThumbURL() for displaying Earth Engine images in blog posts:\nurl = image.getThumbURL({\n    'region': region,\n    'dimensions': 800,\n    'format': 'png',\n    **vis_params\n})\nImage(url=url)\n\nSet dimensions to 800 for full-width images\nUse PNG format for best quality\nKeep zoom/region appropriate for the content\nThis approach works reliably with Quarto rendering and shows readers practical EE code\n\n\n\n\n\nUse Altair for exploratory charts; inline creation.\nUse width 650 for charts.\nTitles concise; axes labeled.\nFor time series: convert FeatureCollection to client-side list carefully (limit temporal range).\n\n\n\n\nWhen introducing a dataset: - Collection ID - Spatial/temporal coverage summary - Key bands / properties - One usage code snippet - Attribution / source link\n\n\n\n\nHide setup/auth chunks: #| echo: false\nShow analysis chunks: #| echo: true\nSuppress messages unless relevant: #| message: false\nIf a chunk produces an image or chart only: #| echo: false but keep narrative around it.\n\n\n\n\n\nAll static PNGs must fit container; rely on Quarto CSS (img { max-width: 100%; height: auto; }).\nUse getThumbURL() for Earth Engine image visualization to ensure reliable Quarto rendering.\n\n\n\n\n\n\ncollection = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL').filterDate('2023-01-01','2024-01-01')\nimage = collection.first()\nregion = ee.Geometry.Rectangle([5.9, 45.8, 10.5, 47.8])\nvis = {'bands':['red','green','blue'], 'min':0, 'max':0.3}\n\nurl = image.getThumbURL({\n    'region': region,\n    'dimensions': 800,\n    'format': 'png',\n    **vis\n})\nImage(url=url)\n\n\n\npoint = ee.Geometry.Point([-121.5, 38.5])\ncollection = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI') \\\n    .filterDate('2023-01-01', '2024-01-01')\n\ndef extract_ndvi(img):\n    date = img.date().format(\"YYYY-MM-dd\")\n    ndvi = img.reduceRegion(\n        reducer=ee.Reducer.mean(),\n        geometry=point,\n        scale=30\n    ).get('NDVI')\n    return ee.Feature(None, {'date': date, 'ndvi': ndvi})\n\ntimeseries = collection.map(extract_ndvi).getInfo()\nrows = [f['properties'] for f in timeseries['features']]\ndf = pd.DataFrame(rows)\ndf['date'] = pd.to_datetime(df['date'])\n\nchart = alt.Chart(df).mark_line(point=True).encode(\n    x='date:T',\n    y=alt.Y('ndvi:Q', title='NDVI'),\n    tooltip=['date', 'ndvi']\n).properties(\n    title='8-Day NDVI (2023)',\n    width=650\n)\nchart\n(Agent: ensure performance; for large collections, reduce temporal range.)\n\n\n\n\n\nPrefer active voice (“We load”, “This composite shows”)\nUse short paragraphs (2–4 sentences).\nAvoid marketing fluff; precise technical wording.\nLink dataset IDs with backticks.\n\n\n\n\n\nNo overflowing images.\nAll code executes under current environment.\nTitle and first sentence compelling.\nAt least one visual (image or chart).\nLinks validated.\n\n\n\n\n\nDeep multi-thousand word tutorials.\nComplex multi-stage ETL pipelines (link out instead).\n\n\n\n\nOne index.qmd file in posts/YYYY-MM-DD-slug/ using the template."
   },
   {
-    "objectID": "posts/2025-11-06-landsat-composites/index.html#cloud-free-data-ready-for-analysis",
-    "href": "posts/2025-11-06-landsat-composites/index.html#cloud-free-data-ready-for-analysis",
-    "title": "Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine",
-    "section": "Cloud-Free Data, Ready for Analysis",
-    "text": "Cloud-Free Data, Ready for Analysis\nEach composite is created by applying rigorous cloud, shadow, and aerosol masking to all available scenes within a given time interval, then selecting the most recent clear pixel for each location. The result is a set of spatially complete, temporally dense image collections perfect for time-series analysis, land cover mapping, and environmental monitoring, without the preprocessing headache.\nWe are releasing composites at three temporal resolutions—8-day, 32-day, and annual—to meet various monitoring needs. For each resolution, we offer two types of collections:\n\nSurface Reflectance (SR) Composites: blue, green, red, NIR, SWIR1, SWIR2, and thermal surface temperature.\n\nLANDSAT/COMPOSITES/C02/T1_L2_8DAY\nLANDSAT/COMPOSITES/C02/T1_L2_32DAY\nLANDSAT/COMPOSITES/C02/T1_L2_ANNUAL\n\nSpectral Index Composites: BAI, EVI, NBR, NDVI, NDWI.\n\nFor example: LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI, LANDSAT/COMPOSITES/C02/T1_L2_32DAY_BAI, etc.\n\n\nIn this post, we’ll walk through a few examples with Python in Quarto. The code below renders static images and charts suitable for Medium or other static sites.\n\nExample 1: Create a Cloud-Free Annual Mosaic\n\n# True-color composite for Switzerland in 2023\ncollection = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL') \\\n    .filterDate('2023-01-01', '2024-01-01')\n\n# Each annual composite collection contains one image per year.\nimage = collection.first()\n\nvis_params = {'bands': ['red', 'green', 'blue'], 'min': 0, 'max': 0.3}\nswitzerland_roi = ee.Geometry.Rectangle([5.9, 45.8, 10.5, 47.8])\n\n\n\n\n\n\n\n\n\n\n\n\nExample 2: Monitor Vegetation Health with 8-Day NDVI (Static Chart)\n\n# Point in Sacramento area\npoint = ee.Geometry.Point([-121.5, 38.5])\ncollection_ndvi = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI') \\\n    .filterDate('2023-01-01', '2024-01-01')\n\ndef extract_ndvi(img):\n    date = img.date().format(\"YYYY-MM-dd\")\n    ndvi = img.reduceRegion(reducer=ee.Reducer.mean(), geometry=point, scale=30).get('NDVI')\n    return ee.Feature(None, {'date': date, 'ndvi': ndvi})\n\n# Bring small series client-side for plotting\ntimeseries = collection_ndvi.map(extract_ndvi).getInfo()\nrows = [f['properties'] for f in timeseries['features']]\ndf = pd.DataFrame(rows)\ndf['date'] = pd.to_datetime(df['date'])\n\nchart = alt.Chart(df).mark_line(point=True).encode(\n        x='date:T',\n        y=alt.Y('ndvi:Q', title='NDVI'),\n        tooltip=['date', 'ndvi']\n).properties(title='8-Day NDVI Time Series (Sacramento 2023)')\n\nchart\n\n\n\n\n\n\n\n\n\nExample 3: Assess Wildfire Burn Severity with NBR\n\n# Visualize Normalized Burn Ratio (NBR) difference for the Dixie Fire, Aug 2021\nprefire = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR') \\\n  .filterDate('2021-06-15', '2021-07-15').mean()\npostfire = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR') \\\n  .filterDate('2021-08-15', '2021-09-15').mean()\n\ndNBR = prefire.subtract(postfire)\n\npalette = ['#006400', '#F0E68C', '#8B0000']\nvis = {'min': -0.1, 'max': 1, 'palette': palette}\nregion = ee.Geometry.Rectangle([-122.5, 39.8, -120.5, 40.5])"
+    "objectID": "AGENT_INSTRUCTIONS.html#purpose-tone",
+    "href": "AGENT_INSTRUCTIONS.html#purpose-tone",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "Short, discovery-oriented notes (500–900 words typical).\nConversational, pragmatic, not overly polished; prioritize usefulness.\nEmphasize Earth Engine, geospatial analysis, Python workflows, Google Cloud, public geospatial datasets.\nWhen announcing datasets: include collection ID, a minimal usage snippet, and 1–2 suggested applications."
   },
   {
-    "objectID": "posts/2025-11-06-landsat-composites/index.html#get-started-today",
-    "href": "posts/2025-11-06-landsat-composites/index.html#get-started-today",
-    "title": "Skip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine",
-    "section": "Get Started Today!",
-    "text": "Get Started Today!\nThese new Landsat composite collections are now available in the Earth Engine Data Catalog. Search for LANDSAT/COMPOSITES/C02 in the catalog or visit datasets such as LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL.\nSpend less time preprocessing and more time on discovery. We hope these new collections accelerate your Landsat-based research and applications in Google Earth Engine!"
+    "objectID": "AGENT_INSTRUCTIONS.html#standard-post-structure",
+    "href": "AGENT_INSTRUCTIONS.html#standard-post-structure",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "Title (succinct, action or insight oriented)\n1–2 sentence hook/summary.\nMinimal context (what/why).\nOne or more concise examples (image, chart, or stat table).\nOptional: small troubleshooting tip or gotcha.\nLinks (dataset, docs, code repo, related post).\nClosing nudge (“Try it”, “Explore variants”, etc.)."
+  },
+  {
+    "objectID": "AGENT_INSTRUCTIONS.html#earth-engine-initialization-python",
+    "href": "AGENT_INSTRUCTIONS.html#earth-engine-initialization-python",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "Use this pattern at the start of posts:\nimport ee\nimport pandas as pd\nimport altair as alt\nfrom IPython.display import Image\n\nee.Initialize(project='ee-braaten')  # Replace with your project ID\nFor rendering, use the author’s actual project. Readers will replace with their own."
+  },
+  {
+    "objectID": "AGENT_INSTRUCTIONS.html#image-display-guidelines",
+    "href": "AGENT_INSTRUCTIONS.html#image-display-guidelines",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "Use getThumbURL() for displaying Earth Engine images in blog posts:\nurl = image.getThumbURL({\n    'region': region,\n    'dimensions': 800,\n    'format': 'png',\n    **vis_params\n})\nImage(url=url)\n\nSet dimensions to 800 for full-width images\nUse PNG format for best quality\nKeep zoom/region appropriate for the content\nThis approach works reliably with Quarto rendering and shows readers practical EE code"
+  },
+  {
+    "objectID": "AGENT_INSTRUCTIONS.html#chart-guidelines",
+    "href": "AGENT_INSTRUCTIONS.html#chart-guidelines",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "Use Altair for exploratory charts; inline creation.\nUse width 650 for charts.\nTitles concise; axes labeled.\nFor time series: convert FeatureCollection to client-side list carefully (limit temporal range)."
+  },
+  {
+    "objectID": "AGENT_INSTRUCTIONS.html#dataset-announcement-checklist",
+    "href": "AGENT_INSTRUCTIONS.html#dataset-announcement-checklist",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "When introducing a dataset: - Collection ID - Spatial/temporal coverage summary - Key bands / properties - One usage code snippet - Attribution / source link"
+  },
+  {
+    "objectID": "AGENT_INSTRUCTIONS.html#code-chunk-conventions",
+    "href": "AGENT_INSTRUCTIONS.html#code-chunk-conventions",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "Hide setup/auth chunks: #| echo: false\nShow analysis chunks: #| echo: true\nSuppress messages unless relevant: #| message: false\nIf a chunk produces an image or chart only: #| echo: false but keep narrative around it."
+  },
+  {
+    "objectID": "AGENT_INSTRUCTIONS.html#image-sizing-responsiveness",
+    "href": "AGENT_INSTRUCTIONS.html#image-sizing-responsiveness",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "All static PNGs must fit container; rely on Quarto CSS (img { max-width: 100%; height: auto; }).\nUse getThumbURL() for Earth Engine image visualization to ensure reliable Quarto rendering."
+  },
+  {
+    "objectID": "AGENT_INSTRUCTIONS.html#reusable-patterns",
+    "href": "AGENT_INSTRUCTIONS.html#reusable-patterns",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "collection = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL').filterDate('2023-01-01','2024-01-01')\nimage = collection.first()\nregion = ee.Geometry.Rectangle([5.9, 45.8, 10.5, 47.8])\nvis = {'bands':['red','green','blue'], 'min':0, 'max':0.3}\n\nurl = image.getThumbURL({\n    'region': region,\n    'dimensions': 800,\n    'format': 'png',\n    **vis\n})\nImage(url=url)\n\n\n\npoint = ee.Geometry.Point([-121.5, 38.5])\ncollection = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI') \\\n    .filterDate('2023-01-01', '2024-01-01')\n\ndef extract_ndvi(img):\n    date = img.date().format(\"YYYY-MM-dd\")\n    ndvi = img.reduceRegion(\n        reducer=ee.Reducer.mean(),\n        geometry=point,\n        scale=30\n    ).get('NDVI')\n    return ee.Feature(None, {'date': date, 'ndvi': ndvi})\n\ntimeseries = collection.map(extract_ndvi).getInfo()\nrows = [f['properties'] for f in timeseries['features']]\ndf = pd.DataFrame(rows)\ndf['date'] = pd.to_datetime(df['date'])\n\nchart = alt.Chart(df).mark_line(point=True).encode(\n    x='date:T',\n    y=alt.Y('ndvi:Q', title='NDVI'),\n    tooltip=['date', 'ndvi']\n).properties(\n    title='8-Day NDVI (2023)',\n    width=650\n)\nchart\n(Agent: ensure performance; for large collections, reduce temporal range.)"
+  },
+  {
+    "objectID": "AGENT_INSTRUCTIONS.html#writing-style-reminders",
+    "href": "AGENT_INSTRUCTIONS.html#writing-style-reminders",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "Prefer active voice (“We load”, “This composite shows”)\nUse short paragraphs (2–4 sentences).\nAvoid marketing fluff; precise technical wording.\nLink dataset IDs with backticks."
+  },
+  {
+    "objectID": "AGENT_INSTRUCTIONS.html#quality-checklist-before-finish",
+    "href": "AGENT_INSTRUCTIONS.html#quality-checklist-before-finish",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "No overflowing images.\nAll code executes under current environment.\nTitle and first sentence compelling.\nAt least one visual (image or chart).\nLinks validated."
+  },
+  {
+    "objectID": "AGENT_INSTRUCTIONS.html#out-of-scope",
+    "href": "AGENT_INSTRUCTIONS.html#out-of-scope",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "Deep multi-thousand word tutorials.\nComplex multi-stage ETL pipelines (link out instead)."
+  },
+  {
+    "objectID": "AGENT_INSTRUCTIONS.html#final-output",
+    "href": "AGENT_INSTRUCTIONS.html#final-output",
+    "title": "Ground Truth Blog Agent Instructions",
+    "section": "",
+    "text": "One index.qmd file in posts/YYYY-MM-DD-slug/ using the template."
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Gaia Lens Blog",
     "section": "",
-    "text": "Welcome to the Gaia Lens Blog. Recent posts are listed below.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSkip the Preprocessing: New Cloud-Free Landsat Composites Arrive in Google Earth Engine\n\n\n\nEarth Engine\n\nLandsat\n\nRemote Sensing\n\n\n\n\n\n\n\n\n\nNov 6, 2025\n\n\nJustin Braaten\n\n\n\n\n\nNo matching items"
+    "text": "Welcome to the Gaia Lens Blog. Recent posts are listed below.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDitch the Boilerplate: Use Earth Engine’s On-the-Fly Landsat Composites\n\n\n\nEarth Engine\n\nLandsat\n\nRemote Sensing\n\n\n\n\n\n\n\n\n\nNov 6, 2025\n\n\nJustin Braaten\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/2025-11-06-landsat-composites/index.html",
+    "href": "posts/2025-11-06-landsat-composites/index.html",
+    "title": "Ditch the Boilerplate: Use Earth Engine’s On-the-Fly Landsat Composites",
+    "section": "",
+    "text": "How much of your Landsat analysis code is just preprocessing? Cloud masking, filtering scenes, mosaicking pixels—it’s necessary work, but it’s also repetitive boilerplate that clutters your scripts and slows you down.\nGood news: Earth Engine generates cloud-free Landsat composites on the fly. Load them like any ImageCollection and skip straight to analysis."
+  },
+  {
+    "objectID": "posts/2025-11-06-landsat-composites/index.html#what-you-get",
+    "href": "posts/2025-11-06-landsat-composites/index.html#what-you-get",
+    "title": "Ditch the Boilerplate: Use Earth Engine’s On-the-Fly Landsat Composites",
+    "section": "What You Get",
+    "text": "What You Get\nThe LANDSAT/COMPOSITES/C02 collections provide cloud-masked composites at three temporal resolutions—8-day, 32-day, and annual—spanning Landsat 4–9 data from 1984 to present. These are built from USGS Level-2 Surface Reflectance and, after strict quality filtering, use a median compositor within each time window.\nTwo types of collections:\nSurface Reflectance: blue, green, red, NIR, SWIR1, SWIR2, thermal surface temperature\n\nLANDSAT/COMPOSITES/C02/T1_L2_8DAY\nLANDSAT/COMPOSITES/C02/T1_L2_32DAY\nLANDSAT/COMPOSITES/C02/T1_L2_ANNUAL\n\nSpectral Indices: BAI, EVI, NBR, NDVI, NDWI (each index in its own collection)\n\nExample: LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI\nExample: LANDSAT/COMPOSITES/C02/T1_L2_32DAY_BAI\n\nThese save you from writing (and maintaining) the typical cloud masking functions, date filters, and mosaicking logic that otherwise clutter every Landsat workflow.\n\nHow they’re made\n\nSource data: USGS Level-2 Surface Reflectance (Landsat 4–9).\nUnified collections across Landsat 4–9 instruments.\nTemporal compositing: median within each 8‑day, 32‑day, or annual window.\nStrict filtering applied before compositing, including:\n\nLimit Landsat 7 to 1999–2017 (orbital drift / scene acquisition time)\nOmit Landsat 8 data before 2013‑05‑01 (orbit stability)\nOmit scenes with WRS_ROW ≥ 122 (no nighttime images)\nKeep only pixels QA‑flagged as clear\nOmit L4–L7 pixels with ATMOS_OPACITY &gt; 300 (haze)\nOmit L8–L9 pixels with any QA_AEROSOL issues\nOmit saturated or out‑of‑bounds pixels\n\n\nThe code that generates these composites is public (see the Earth Engine catalog entry for details and links).\n\nimport ee\nimport pandas as pd\nimport altair as alt\nfrom IPython.display import Image\n\nee.Initialize(project='ee-braaten')  # Replace with your project ID"
+  },
+  {
+    "objectID": "posts/2025-11-06-landsat-composites/index.html#quick-examples",
+    "href": "posts/2025-11-06-landsat-composites/index.html#quick-examples",
+    "title": "Ditch the Boilerplate: Use Earth Engine’s On-the-Fly Landsat Composites",
+    "section": "Quick Examples",
+    "text": "Quick Examples\n\nAnnual True-Color Mosaic\n\ncollection = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL') \\\n    .filterDate('2023-01-01', '2024-01-01')\nimage = collection.first()\n\nregion = ee.Geometry.Rectangle([5.9, 45.8, 10.5, 47.8])\nvis = {'bands': ['red', 'green', 'blue'], 'min': 0.0, 'max': 0.25}\n\n# Get thumbnail URL and display\nurl = image.getThumbURL({\n    'region': region,\n    'dimensions': 800,\n    'format': 'png',\n    **vis\n})\nImage(url=url)\n\n\n\n\nNo cloud masking function. No pixel compositing logic. Just load and visualize.\n\n\n8-Day NDVI Time Series\n\npoint = ee.Geometry.Point([-121.5, 38.5])\ncollection = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI') \\\n    .filterDate('2023-01-01', '2024-01-01')\n\ndef extract_ndvi(img):\n    date = img.date().format(\"YYYY-MM-dd\")\n    ndvi = img.reduceRegion(\n        reducer=ee.Reducer.mean(), \n        geometry=point, \n        scale=30\n    ).get('NDVI')\n    return ee.Feature(None, {'date': date, 'ndvi': ndvi})\n\ntimeseries = collection.map(extract_ndvi).getInfo()\nrows = [f['properties'] for f in timeseries['features']]\ndf = pd.DataFrame(rows)\ndf['date'] = pd.to_datetime(df['date'])\n\nchart = alt.Chart(df).mark_line(point=True).encode(\n    x='date:T',\n    y=alt.Y('ndvi:Q', title='NDVI'),\n    tooltip=['date', 'ndvi']\n).properties(\n    title='8-Day NDVI (Sacramento Valley, 2023)',\n    width=650\n)\nchart\n\n\n\n\n\n\n\nThe NDVI is already computed—no band math required. If you need custom indices, use the surface reflectance composites instead.\n\n\nWildfire Burn Severity (dNBR)\n\n# Dixie Fire, August 2021\nprefire = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR') \\\n    .filterDate('2021-06-15', '2021-07-15').mean()\npostfire = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR') \\\n    .filterDate('2021-08-15', '2021-09-15').mean()\n\ndNBR = prefire.subtract(postfire)\n\nregion = ee.Geometry.Rectangle([-122.5, 39.8, -120.5, 40.5])\nvis = {'min': -0.1, 'max': 1, 'palette': ['#006400', '#F0E68C', '#8B0000']}\n\n# Get thumbnail URL and display\nurl = dNBR.getThumbURL({\n    'region': region,\n    'dimensions': 800,\n    'format': 'png',\n    **vis\n})\nImage(url=url)\n\n\n\n\nPre- and post-fire NBR composites already masked and mosaicked. Compute the difference and you’re done."
+  },
+  {
+    "objectID": "posts/2025-11-06-landsat-composites/index.html#why-this-matters",
+    "href": "posts/2025-11-06-landsat-composites/index.html#why-this-matters",
+    "title": "Ditch the Boilerplate: Use Earth Engine’s On-the-Fly Landsat Composites",
+    "section": "Why This Matters",
+    "text": "Why This Matters\nWithout these composites, a typical Landsat workflow looks like this:\n\nDefine cloud/shadow masking function\nFilter raw scenes by date and bounds\nMap masking function over collection\nMosaic or reduce pixels\nFinally: do the actual analysis\n\nWith the composite collections, you skip steps 1–4. That’s less code to write, debug, and maintain. It’s especially valuable for:\n\nRapid prototyping: test an idea without boilerplate overhead\nTeaching: focus on concepts, not preprocessing mechanics\nConsistent baselines: everyone uses the same masking/compositing logic"
+  },
+  {
+    "objectID": "posts/2025-11-06-landsat-composites/index.html#try-it",
+    "href": "posts/2025-11-06-landsat-composites/index.html#try-it",
+    "title": "Ditch the Boilerplate: Use Earth Engine’s On-the-Fly Landsat Composites",
+    "section": "Try It",
+    "text": "Try It\nLoad LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL or one of the index collections in your next script. Check the Earth Engine Data Catalog for full documentation on bands, properties, and temporal coverage.\nExplore the 8-day or 32-day variants if you need finer temporal resolution. The collections are updated regularly as new Landsat data arrives."
   }
 ]

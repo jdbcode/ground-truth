@@ -9,7 +9,7 @@
 <meta name="keywords" content="Earth Engine, Geospatial Analysis, Python, Google Cloud, Remote Sensing, Raster Data, Datasets">
 <meta name="description" content="Short, rough-cut notes on Earth Engine, geospatial analysis, Python libraries, Google Cloud, and datasets — sharing discoveries, tips, and dataset/app announcements.">
 
-<title>Gaia Lens Blog – Ground Truth</title>
+<title>agent_instructions – Ground Truth</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,6 +22,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -32,8 +67,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -72,66 +105,8 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 <style>html{ scroll-behavior: smooth; }</style>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
@@ -155,7 +130,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
 </ul>
@@ -170,14 +145,34 @@ window.Quarto = {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RWFydGglMjBFbmdpbmU=">Earth Engine <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TGFuZHNhdA==">Landsat <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UmVtb3RlJTIwU2Vuc2luZw==">Remote Sensing <span class="quarto-category-count">(1)</span></div></div></div>
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#ground-truth-blog-agent-instructions" id="toc-ground-truth-blog-agent-instructions" class="nav-link active" data-scroll-target="#ground-truth-blog-agent-instructions">Ground Truth Blog Agent Instructions</a>
+  <ul class="collapse">
+  <li><a href="#purpose-tone" id="toc-purpose-tone" class="nav-link" data-scroll-target="#purpose-tone">Purpose &amp; Tone</a></li>
+  <li><a href="#standard-post-structure" id="toc-standard-post-structure" class="nav-link" data-scroll-target="#standard-post-structure">Standard Post Structure</a></li>
+  <li><a href="#earth-engine-initialization-python" id="toc-earth-engine-initialization-python" class="nav-link" data-scroll-target="#earth-engine-initialization-python">Earth Engine Initialization (Python)</a></li>
+  <li><a href="#image-display-guidelines" id="toc-image-display-guidelines" class="nav-link" data-scroll-target="#image-display-guidelines">Image Display Guidelines</a></li>
+  <li><a href="#chart-guidelines" id="toc-chart-guidelines" class="nav-link" data-scroll-target="#chart-guidelines">Chart Guidelines</a></li>
+  <li><a href="#dataset-announcement-checklist" id="toc-dataset-announcement-checklist" class="nav-link" data-scroll-target="#dataset-announcement-checklist">Dataset Announcement Checklist</a></li>
+  <li><a href="#code-chunk-conventions" id="toc-code-chunk-conventions" class="nav-link" data-scroll-target="#code-chunk-conventions">Code Chunk Conventions</a></li>
+  <li><a href="#image-sizing-responsiveness" id="toc-image-sizing-responsiveness" class="nav-link" data-scroll-target="#image-sizing-responsiveness">Image Sizing / Responsiveness</a></li>
+  <li><a href="#reusable-patterns" id="toc-reusable-patterns" class="nav-link" data-scroll-target="#reusable-patterns">Reusable Patterns</a></li>
+  <li><a href="#writing-style-reminders" id="toc-writing-style-reminders" class="nav-link" data-scroll-target="#writing-style-reminders">Writing Style Reminders</a></li>
+  <li><a href="#quality-checklist-before-finish" id="toc-quality-checklist-before-finish" class="nav-link" data-scroll-target="#quality-checklist-before-finish">Quality Checklist Before Finish</a></li>
+  <li><a href="#out-of-scope" id="toc-out-of-scope" class="nav-link" data-scroll-target="#out-of-scope">Out of Scope</a></li>
+  <li><a href="#final-output" id="toc-final-output" class="nav-link" data-scroll-target="#final-output">Final Output</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Gaia Lens Blog</h1>
 </div>
 
 <div>
@@ -205,50 +200,171 @@ window.Quarto = {
 </header>
 
 
-<p>Welcome to the Gaia Lens Blog. Recent posts are listed below.</p>
+<section id="ground-truth-blog-agent-instructions" class="level1">
+<h1>Ground Truth Blog Agent Instructions</h1>
+<p>These guidelines help an AI agent draft new short “b-side” posts for the Ground Truth blog.</p>
+<section id="purpose-tone" class="level2">
+<h2 class="anchored" data-anchor-id="purpose-tone">Purpose &amp; Tone</h2>
+<ul>
+<li>Short, discovery-oriented notes (500–900 words typical).</li>
+<li>Conversational, pragmatic, not overly polished; prioritize usefulness.</li>
+<li>Emphasize Earth Engine, geospatial analysis, Python workflows, Google Cloud, public geospatial datasets.</li>
+<li>When announcing datasets: include collection ID, a minimal usage snippet, and 1–2 suggested applications.</li>
+</ul>
+</section>
+<section id="standard-post-structure" class="level2">
+<h2 class="anchored" data-anchor-id="standard-post-structure">Standard Post Structure</h2>
+<ol type="1">
+<li>Title (succinct, action or insight oriented)</li>
+<li>1–2 sentence hook/summary.</li>
+<li>Minimal context (what/why).</li>
+<li>One or more concise examples (image, chart, or stat table).</li>
+<li>Optional: small troubleshooting tip or gotcha.</li>
+<li>Links (dataset, docs, code repo, related post).</li>
+<li>Closing nudge (“Try it”, “Explore variants”, etc.).</li>
+</ol>
+</section>
+<section id="earth-engine-initialization-python" class="level2">
+<h2 class="anchored" data-anchor-id="earth-engine-initialization-python">Earth Engine Initialization (Python)</h2>
+<p>Use this pattern at the start of posts:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ee</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> altair <span class="im">as</span> alt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Image</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>ee.Initialize(project<span class="op">=</span><span class="st">'ee-braaten'</span>)  <span class="co"># Replace with your project ID</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For rendering, use the author’s actual project. Readers will replace with their own.</p>
+</section>
+<section id="image-display-guidelines" class="level2">
+<h2 class="anchored" data-anchor-id="image-display-guidelines">Image Display Guidelines</h2>
+<p>Use <code>getThumbURL()</code> for displaying Earth Engine images in blog posts:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> image.getThumbURL({</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'region'</span>: region,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'dimensions'</span>: <span class="dv">800</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'format'</span>: <span class="st">'png'</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>vis_params</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>Image(url<span class="op">=</span>url)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Set <code>dimensions</code> to 800 for full-width images</li>
+<li>Use PNG format for best quality</li>
+<li>Keep zoom/region appropriate for the content</li>
+<li>This approach works reliably with Quarto rendering and shows readers practical EE code</li>
+</ul>
+</section>
+<section id="chart-guidelines" class="level2">
+<h2 class="anchored" data-anchor-id="chart-guidelines">Chart Guidelines</h2>
+<ul>
+<li>Use Altair for exploratory charts; inline creation.</li>
+<li>Use width 650 for charts.</li>
+<li>Titles concise; axes labeled.</li>
+<li>For time series: convert FeatureCollection to client-side list carefully (limit temporal range).</li>
+</ul>
+</section>
+<section id="dataset-announcement-checklist" class="level2">
+<h2 class="anchored" data-anchor-id="dataset-announcement-checklist">Dataset Announcement Checklist</h2>
+<p>When introducing a dataset: - Collection ID - Spatial/temporal coverage summary - Key bands / properties - One usage code snippet - Attribution / source link</p>
+</section>
+<section id="code-chunk-conventions" class="level2">
+<h2 class="anchored" data-anchor-id="code-chunk-conventions">Code Chunk Conventions</h2>
+<ul>
+<li>Hide setup/auth chunks: <code>#| echo: false</code></li>
+<li>Show analysis chunks: <code>#| echo: true</code></li>
+<li>Suppress messages unless relevant: <code>#| message: false</code></li>
+<li>If a chunk produces an image or chart only: <code>#| echo: false</code> but keep narrative around it.</li>
+</ul>
+</section>
+<section id="image-sizing-responsiveness" class="level2">
+<h2 class="anchored" data-anchor-id="image-sizing-responsiveness">Image Sizing / Responsiveness</h2>
+<ul>
+<li>All static PNGs must fit container; rely on Quarto CSS (<code>img { max-width: 100%; height: auto; }</code>).</li>
+<li>Use <code>getThumbURL()</code> for Earth Engine image visualization to ensure reliable Quarto rendering.</li>
+</ul>
+</section>
+<section id="reusable-patterns" class="level2">
+<h2 class="anchored" data-anchor-id="reusable-patterns">Reusable Patterns</h2>
+<section id="annual-composite-example" class="level3">
+<h3 class="anchored" data-anchor-id="annual-composite-example">Annual Composite Example</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>collection <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL'</span>).filterDate(<span class="st">'2023-01-01'</span>,<span class="st">'2024-01-01'</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> collection.first()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>region <span class="op">=</span> ee.Geometry.Rectangle([<span class="fl">5.9</span>, <span class="fl">45.8</span>, <span class="fl">10.5</span>, <span class="fl">47.8</span>])</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>vis <span class="op">=</span> {<span class="st">'bands'</span>:[<span class="st">'red'</span>,<span class="st">'green'</span>,<span class="st">'blue'</span>], <span class="st">'min'</span>:<span class="dv">0</span>, <span class="st">'max'</span>:<span class="fl">0.3</span>}</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> image.getThumbURL({</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'region'</span>: region,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'dimensions'</span>: <span class="dv">800</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'format'</span>: <span class="st">'png'</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>vis</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>Image(url<span class="op">=</span>url)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="ndvi-time-series-8-day" class="level3">
+<h3 class="anchored" data-anchor-id="ndvi-time-series-8-day">NDVI Time Series (8-Day)</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>point <span class="op">=</span> ee.Geometry.Point([<span class="op">-</span><span class="fl">121.5</span>, <span class="fl">38.5</span>])</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>collection <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI'</span>) <span class="op">\</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2023-01-01'</span>, <span class="st">'2024-01-01'</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_ndvi(img):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> img.date().<span class="bu">format</span>(<span class="st">"YYYY-MM-dd"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    ndvi <span class="op">=</span> img.reduceRegion(</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        reducer<span class="op">=</span>ee.Reducer.mean(),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        geometry<span class="op">=</span>point,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        scale<span class="op">=</span><span class="dv">30</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    ).get(<span class="st">'NDVI'</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ee.Feature(<span class="va">None</span>, {<span class="st">'date'</span>: date, <span class="st">'ndvi'</span>: ndvi})</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>timeseries <span class="op">=</span> collection.<span class="bu">map</span>(extract_ndvi).getInfo()</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> [f[<span class="st">'properties'</span>] <span class="cf">for</span> f <span class="kw">in</span> timeseries[<span class="st">'features'</span>]]</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(rows)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'date'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'date'</span>])</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>chart <span class="op">=</span> alt.Chart(df).mark_line(point<span class="op">=</span><span class="va">True</span>).encode(</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'date:T'</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span>alt.Y(<span class="st">'ndvi:Q'</span>, title<span class="op">=</span><span class="st">'NDVI'</span>),</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    tooltip<span class="op">=</span>[<span class="st">'date'</span>, <span class="st">'ndvi'</span>]</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>).properties(</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">'8-Day NDVI (2023)'</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    width<span class="op">=</span><span class="dv">650</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>chart</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>(Agent: ensure performance; for large collections, reduce temporal range.)</p>
+</section>
+</section>
+<section id="writing-style-reminders" class="level2">
+<h2 class="anchored" data-anchor-id="writing-style-reminders">Writing Style Reminders</h2>
+<ul>
+<li>Prefer active voice (“We load”, “This composite shows”)</li>
+<li>Use short paragraphs (2–4 sentences).</li>
+<li>Avoid marketing fluff; precise technical wording.</li>
+<li>Link dataset IDs with backticks.</li>
+</ul>
+</section>
+<section id="quality-checklist-before-finish" class="level2">
+<h2 class="anchored" data-anchor-id="quality-checklist-before-finish">Quality Checklist Before Finish</h2>
+<ul>
+<li>No overflowing images.</li>
+<li>All code executes under current environment.</li>
+<li>Title and first sentence compelling.</li>
+<li>At least one visual (image or chart).</li>
+<li>Links validated.</li>
+</ul>
+</section>
+<section id="out-of-scope" class="level2">
+<h2 class="anchored" data-anchor-id="out-of-scope">Out of Scope</h2>
+<ul>
+<li>Deep multi-thousand word tutorials.</li>
+<li>Complex multi-stage ETL pipelines (link out instead).</li>
+</ul>
+</section>
+<section id="final-output" class="level2">
+<h2 class="anchored" data-anchor-id="final-output">Final Output</h2>
+<p>One <code>index.qmd</code> file in <code>posts/YYYY-MM-DD-slug/</code> using the template.</p>
 
 
+</section>
+</section>
 
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="RWFydGglMjBFbmdpbmUlMkNMYW5kc2F0JTJDUmVtb3RlJTIwU2Vuc2luZw==" data-listing-date-sort="1762387200000" data-listing-file-modified-sort="1762576282181" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="693">
-<div class="thumbnail"><a href="./posts/2025-11-06-landsat-composites/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2025-11-06-landsat-composites/index.html" class="no-external">Ditch the Boilerplate: Use Earth Engine’s On-the-Fly Landsat Composites</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('RWFydGglMjBFbmdpbmU='); return false;">Earth Engine</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('TGFuZHNhdA=='); return false;">Landsat</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('UmVtb3RlJTIwU2Vuc2luZw=='); return false;">Remote Sensing</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/2025-11-06-landsat-composites/index.html" class="no-external">
-How much of your Landsat analysis code is just preprocessing? Cloud masking, filtering scenes, mosaicking pixels—it’s necessary work, but it’s also repetitive boilerplate…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/2025-11-06-landsat-composites/index.html" class="no-external">
-<div class="listing-date">
-Nov 6, 2025
-</div>
-<div class="listing-author">
-Justin Braaten
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
