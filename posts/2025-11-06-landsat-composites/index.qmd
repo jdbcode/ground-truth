@@ -26,6 +26,7 @@ Two types of collections:
 
 - Example: `LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI`
 - Example: `LANDSAT/COMPOSITES/C02/T1_L2_32DAY_BAI`
+- Example: `LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL_NDVI`
 
 These save you from writing (and maintaining) the typical cloud masking functions, date filters, and mosaicking logic that otherwise clutter every Landsat workflow.
 
@@ -43,8 +44,6 @@ These save you from writing (and maintaining) the typical cloud masking function
     - Omit L8–L9 pixels with any QA_AEROSOL issues
     - Omit saturated or out‑of‑bounds pixels
 
-The code that generates these composites is public (see the Earth Engine catalog entry for details and links).
-
 ```{python}
 import ee
 import pandas as pd
@@ -54,108 +53,185 @@ from IPython.display import Image
 ee.Initialize(project='ee-braaten')  # Replace with your project ID
 ```
 
-## Quick Examples
+## A Fire History: The Dixie Fire Through Landsat Composites
 
-### Annual True-Color Mosaic
+Let's use these composites to tell the story of California's 2021 [Dixie Fire](https://en.wikipedia.org/wiki/Dixie_Fire)—the state's largest single-source wildfire at the time. We'll examine the landscape before the fire, track vegetation through the burn period, and assess the fire's impact. All with minimal preprocessing code.
 
 ```{python}
-collection = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL') \
-    .filterDate('2023-01-01', '2024-01-01')
-image = collection.first()
+# Define our study area in the northern Sierra Nevada
+region = ee.Geometry.Rectangle([-121.5, 39.8, -120.5, 40.5])
+```
 
-region = ee.Geometry.Rectangle([5.9, 45.8, 10.5, 47.8])
-vis = {'bands': ['red', 'green', 'blue'], 'min': 0.0, 'max': 0.25}
+### The Landscape Before: 2020 Annual Composite
 
-# Get thumbnail URL and display
-url = image.getThumbURL({
+First, let's visualize the pre-fire landscape using a false-color composite (SWIR1, NIR, green) that highlights vegetation structure and moisture content. Healthy vegetation appears green, while exposed soil and rock show brown.
+
+```{python}
+prefire_annual = (ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL')
+    .filterDate('2020-01-01', '2021-01-01').first())
+
+vis_falsecolor = {
+    'bands': ['swir1', 'nir', 'green'],
+    'min': 0.0,
+    'max': 0.4
+}
+
+url = prefire_annual.unmask(0).getThumbURL({
     'region': region,
     'dimensions': 800,
     'format': 'png',
-    **vis
+    **vis_falsecolor
 })
 Image(url=url)
 ```
 
-No cloud masking function. No pixel compositing logic. Just load and visualize.
+The northern Sierra Nevada in 2020: dense conifer forests, interspersed with meadows and chaparral.
 
-### 8-Day NDVI Time Series
+### Monitoring Vegetation: 8-Day NDVI Through 2021
+
+To track forest productivity over the year, we'll use [Dynamic World](https://developers.google.com/earth-engine/datasets/catalog/GOOGLE_DYNAMICWORLD_V1) land cover data from May 2021 to isolate forest pixels, then monitor their NDVI. This gives us a pure forest signal.
 
 ```{python}
-point = ee.Geometry.Point([-121.5, 38.5])
-collection = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI') \
-    .filterDate('2023-01-01', '2024-01-01')
+# Create forest mask using Dynamic World (pre-fire)
+dw = (ee.ImageCollection('GOOGLE/DYNAMICWORLD/V1')
+    .filterDate('2021-05-01', '2021-06-01')
+    .filterBounds(region)
+    .select('label'))
+
+forest_mask = dw.mode().eq(1)  # Class 1 = trees
+
+# Extract NDVI time series from forest pixels
+ndvi_collection = (ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI')
+    .filterDate('2021-01-01', '2021-12-31'))
 
 def extract_ndvi(img):
     date = img.date().format("YYYY-MM-dd")
-    ndvi = img.reduceRegion(
-        reducer=ee.Reducer.mean(), 
-        geometry=point, 
-        scale=30
-    ).get('NDVI')
-    return ee.Feature(None, {'date': date, 'ndvi': ndvi})
+    masked = img.updateMask(forest_mask)
+    stats = masked.reduceRegion(
+        reducer=ee.Reducer.mean(),
+        geometry=region,
+        scale=90,
+    )
+    return ee.Feature(None, {
+        'date': date,
+        'NDVI': stats.get('NDVI')
+    })
 
-timeseries = collection.map(extract_ndvi).getInfo()
-rows = [f['properties'] for f in timeseries['features']]
-df = pd.DataFrame(rows)
+features = ndvi_collection.map(extract_ndvi)
+df = ee.data.computeFeatures({
+    'expression': features,
+    'fileFormat': 'PANDAS_DATAFRAME'
+})
 df['date'] = pd.to_datetime(df['date'])
 
-chart = alt.Chart(df).mark_line(point=True).encode(
-    x='date:T',
-    y=alt.Y('ndvi:Q', title='NDVI'),
-    tooltip=['date', 'ndvi']
+chart = (
+    alt.Chart(df)
+    .mark_point(filled=True, size=200, color='green')
+    .encode(
+        x=alt.X('date:T', title='Date'),
+        y=alt.Y('NDVI:Q', title='NDVI', scale=alt.Scale(domain=[0, 1])),
+        tooltip=['date:T', alt.Tooltip('NDVI:Q', format='.3f')]
+    )
 ).properties(
-    title='8-Day NDVI (Sacramento Valley, 2023)',
-    width=650
+    width=800,
+    height=300
 )
-chart
+chart.save('ndvi_timeseries.png')
+Image(url='ndvi_timeseries.png')
 ```
 
-The NDVI is already computed—no band math required. If you need custom indices, use the surface reflectance composites instead.
+Regional 8-day NDVI for forest pixels. Some observations may not be available because satellite scheduling or cloud masking.
 
-### Wildfire Burn Severity (dNBR)
+### Fire Comparison: Before and After
+
+Now let's compare the landscape immediately before and after the main burn period using enhanced true‑color (SWIR1–NIR–green) composites.
 
 ```{python}
-# Dixie Fire, August 2021
-prefire = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR') \
-    .filterDate('2021-06-15', '2021-07-15').mean()
-postfire = ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR') \
-    .filterDate('2021-08-15', '2021-09-15').mean()
+# Pre-fire composite (May-June 2021)
+prefire_summer = (ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY')
+    .filterDate('2021-05-01', '2021-07-01').mean())
 
-dNBR = prefire.subtract(postfire)
+vis_enhanced = {
+    'bands': ['swir1', 'nir', 'green'],
+    'min': 0.0,
+    'max': 0.4
+}
 
-region = ee.Geometry.Rectangle([-122.5, 39.8, -120.5, 40.5])
-vis = {'min': -0.1, 'max': 1, 'palette': ['#006400', '#F0E68C', '#8B0000']}
-
-# Get thumbnail URL and display
-url = dNBR.getThumbURL({
+url_prefire = prefire_summer.unmask(0).getThumbURL({
     'region': region,
     'dimensions': 800,
     'format': 'png',
-    **vis
+    **vis_enhanced
 })
-Image(url=url)
+Image(url=url_prefire)
 ```
 
-Pre- and post-fire NBR composites already masked and mosaicked. Compute the difference and you're done.
+Green canopy dominates in early summer 2021, shortly before ignition.
+
+```{python}
+# Post-fire composite (September-October 2021)
+postfire_fall = (ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY')
+    .filterDate('2021-09-01', '2021-11-01').mean())
+
+url_postfire = postfire_fall.unmask(0).getThumbURL({
+    'region': region,
+    'dimensions': 800,
+    'format': 'png',
+    **vis_enhanced
+})
+Image(url=url_postfire)
+```
+
+By fall, the burn scar is evident: brown and gray tones replace the green canopy where fire consumed over 960,000 acres.
+
+### Burn Severity: Differenced NBR
+
+Finally, we'll quantify burn severity using the Normalized Burn Ratio (NBR). High dNBR values indicate severe fire impact.
+
+```{python}
+# Pre-fire NBR
+prefire_nbr = (ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR')
+    .filterDate('2021-05-01', '2021-07-01').mean())
+
+# Post-fire NBR
+postfire_nbr = (ee.ImageCollection('LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR')
+    .filterDate('2021-09-01', '2021-11-01').mean())
+
+dNBR = prefire_nbr.subtract(postfire_nbr)
+
+# Visualization parameters (single-band; no need to specify 'bands')
+vis_dnbr = {
+    'min': -0.1,
+    'max': 1.0,
+    'palette': ['#006400', '#FFFFE0', '#FFA500', '#FF0000', '#8B0000']
+}
+
+# Convert to RGB with palette.
+rgb = dNBR.visualize(**vis_dnbr).unmask(0)
+url_dnbr = rgb.getThumbURL({
+    'region': region,
+    'dimensions': 800,
+    'format': 'png'
+})
+Image(url=url_dnbr)
+```
+
+Dark red shows high-severity burn where complete canopy loss occurred. Yellow-orange indicates moderate severity. Green represents unburned or low-severity areas. The composites provide analysis-ready NBR—no manual index calculation required.
 
 ## Why This Matters
 
-Without these composites, a typical Landsat workflow looks like this:
+The Dixie Fire analysis above required ~50 lines of code. A traditional workflow—cloud masking, mosaicking, computing indices—would take 200+ lines and might require managing intermediate outputs.
 
-1. Define cloud/shadow masking function
-2. Filter raw scenes by date and bounds
-3. Map masking function over collection
-4. Mosaic or reduce pixels
-5. Finally: do the actual analysis
+These composites eliminate preprocessing friction, letting you focus on the science:
 
-With the composite collections, you skip steps 1–4. That's less code to write, debug, and maintain. It's especially valuable for:
-
-- **Rapid prototyping**: test an idea without boilerplate overhead
-- **Teaching**: focus on concepts, not preprocessing mechanics
-- **Consistent baselines**: everyone uses the same masking/compositing logic
+- **Multi-temporal analysis**: Track phenology, disturbance, or recovery without wrestling with scene selection
+- **Reproducibility**: Everyone uses the same masking/compositing logic, reducing methods variability
+- **Teaching**: Students learn remote sensing concepts, not preprocessing mechanics
 
 ## Try It
 
-Load `LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL` or one of the index collections in your next script. Check the [Earth Engine Data Catalog](https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_COMPOSITES_C02_T1_L2_ANNUAL) for full documentation on bands, properties, and temporal coverage.
+Start with the [LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL](https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_COMPOSITES_C02_T1_L2_ANNUAL) collection for baseline mapping. Use 32-day for seasonal monitoring or 8-day when you need to resolve weekly dynamics.
 
-Explore the 8-day or 32-day variants if you need finer temporal resolution. The collections are updated regularly as new Landsat data arrives.
+For index collections (NDVI, NBR, EVI, etc.), you can skip band math entirely—just load and analyze. The [catalog documentation](https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_COMPOSITES_C02_T1_L2_8DAY_NDVI) provides full details on temporal coverage and band properties.
+
+These collections update as new Landsat data arrives, making them suitable for both historical analysis and near-real-time monitoring.

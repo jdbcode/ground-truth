@@ -4,11 +4,11 @@ project:
 
 metadata:
   keywords: [Earth Engine, Geospatial Analysis, Python, Google Cloud, Remote Sensing, Raster Data, Datasets]
-  description: "Short, rough-cut notes on Earth Engine, geospatial analysis, Python libraries, Google Cloud, and datasets — sharing discoveries, tips, and dataset/app announcements."
+  description: "Data-driven stories and practical notes on Earth Engine, geospatial analysis, and remote sensing."
 
 website:
   title: "Ground Truth"
-  description: "Earth Engine, geospatial analysis, Python, and datasets — b-sides and quick notes."
+  description: "Data-driven stories and practical notes on Earth Engine, geospatial analysis, and remote sensing."
   navbar:
     left:
       - href: index.qmd

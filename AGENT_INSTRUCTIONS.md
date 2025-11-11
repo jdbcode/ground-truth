@@ -48,7 +48,9 @@ Image(url=url)
 
 ## Chart Guidelines
 - Use Altair for exploratory charts; inline creation.
-- Use width 650 for charts.
+- Use width 800 for charts.
+- Save Altair charts to PNG for smaller HTML file size: `chart.save('filename.png')`
+- Display saved charts with: `Image(url='filename.png')`
 - Titles concise; axes labeled.
 - For time series: convert FeatureCollection to client-side list carefully (limit temporal range).
 
@@ -107,14 +109,15 @@ df = pd.DataFrame(rows)
 df['date'] = pd.to_datetime(df['date'])
 
 chart = alt.Chart(df).mark_line(point=True).encode(
-    x='date:T',
+    x=alt.X('date:T', title='Date'),
     y=alt.Y('ndvi:Q', title='NDVI'),
-    tooltip=['date', 'ndvi']
+    tooltip=['date:T', alt.Tooltip('ndvi:Q', format='.3f')]
 ).properties(
-    title='8-Day NDVI (2023)',
-    width=650
+    width=800,
+    height=300
 )
-chart
+chart.save('ndvi_chart.png', scale_factor=2.0)
+Image(url='ndvi_chart.png')
 ```
 (Agent: ensure performance; for large collections, reduce temporal range.)
 

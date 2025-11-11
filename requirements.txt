@@ -1,6 +1,7 @@
 geemap
 earthengine-api
 altair
+vl-convert-python
 pandas
 numpy
 requests

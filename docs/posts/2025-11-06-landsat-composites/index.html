@@ -9,7 +9,7 @@
 <meta name="author" content="Justin Braaten">
 <meta name="dcterms.date" content="2025-11-06">
 <meta name="keywords" content="Earth Engine, Geospatial Analysis, Python, Google Cloud, Remote Sensing, Raster Data, Datasets">
-<meta name="description" content="Short, rough-cut notes on Earth Engine, geospatial analysis, Python libraries, Google Cloud, and datasets — sharing discoveries, tips, and dataset/app announcements.">
+<meta name="description" content="Data-driven stories and practical notes on Earth Engine, geospatial analysis, and remote sensing.">
 
 <title>Ditch the Boilerplate: Use Earth Engine’s On-the-Fly Landsat Composites – Ground Truth</title>
 <style>
@@ -155,7 +155,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul class="collapse">
   <li><a href="#what-you-get" id="toc-what-you-get" class="nav-link active" data-scroll-target="#what-you-get">What You Get</a></li>
-  <li><a href="#quick-examples" id="toc-quick-examples" class="nav-link" data-scroll-target="#quick-examples">Quick Examples</a></li>
+  <li><a href="#a-fire-history-the-dixie-fire-through-landsat-composites" id="toc-a-fire-history-the-dixie-fire-through-landsat-composites" class="nav-link" data-scroll-target="#a-fire-history-the-dixie-fire-through-landsat-composites">A Fire History: The Dixie Fire Through Landsat Composites</a></li>
   <li><a href="#why-this-matters" id="toc-why-this-matters" class="nav-link" data-scroll-target="#why-this-matters">Why This Matters</a></li>
   <li><a href="#try-it" id="toc-try-it" class="nav-link" data-scroll-target="#try-it">Try It</a></li>
   </ul>
@@ -176,7 +176,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div>
   <div class="description">
-    Short, rough-cut notes on Earth Engine, geospatial analysis, Python libraries, Google Cloud, and datasets — sharing discoveries, tips, and dataset/app announcements.
+    Data-driven stories and practical notes on Earth Engine, geospatial analysis, and remote sensing.
   </div>
 </div>
 
@@ -227,6 +227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li>Example: <code>LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI</code></li>
 <li>Example: <code>LANDSAT/COMPOSITES/C02/T1_L2_32DAY_BAI</code></li>
+<li>Example: <code>LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL_NDVI</code></li>
 </ul>
 <p>These save you from writing (and maintaining) the typical cloud masking functions, date filters, and mosaicking logic that otherwise clutter every Landsat workflow.</p>
 <section id="how-theyre-made" class="level3">
@@ -246,8 +247,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Omit saturated or out‑of‑bounds pixels</li>
 </ul></li>
 </ul>
-<p>The code that generates these composites is public (see the Earth Engine catalog entry for details and links).</p>
-<div id="34cf9d3d" class="cell" data-execution_count="1">
+<div id="a18af70a" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ee</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> altair <span class="im">as</span> alt</span>
@@ -257,185 +257,190 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 </section>
-<section id="quick-examples" class="level2">
-<h2 class="anchored" data-anchor-id="quick-examples">Quick Examples</h2>
-<section id="annual-true-color-mosaic" class="level3">
-<h3 class="anchored" data-anchor-id="annual-true-color-mosaic">Annual True-Color Mosaic</h3>
-<div id="b913bf83" class="cell" data-execution_count="2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>collection <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL'</span>) <span class="op">\</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2023-01-01'</span>, <span class="st">'2024-01-01'</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> collection.first()</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>region <span class="op">=</span> ee.Geometry.Rectangle([<span class="fl">5.9</span>, <span class="fl">45.8</span>, <span class="fl">10.5</span>, <span class="fl">47.8</span>])</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>vis <span class="op">=</span> {<span class="st">'bands'</span>: [<span class="st">'red'</span>, <span class="st">'green'</span>, <span class="st">'blue'</span>], <span class="st">'min'</span>: <span class="fl">0.0</span>, <span class="st">'max'</span>: <span class="fl">0.25</span>}</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Get thumbnail URL and display</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> image.getThumbURL({</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'region'</span>: region,</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'dimensions'</span>: <span class="dv">800</span>,</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'format'</span>: <span class="st">'png'</span>,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>vis</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>Image(url<span class="op">=</span>url)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="2">
-<img src="https://earthengine.googleapis.com/v1/projects/ee-braaten/thumbnails/ba80b12addeb8ec58cab09c053edc2fc-96f7c933f29d9942db5c0d9956ef629e:getPixels">
+<section id="a-fire-history-the-dixie-fire-through-landsat-composites" class="level2">
+<h2 class="anchored" data-anchor-id="a-fire-history-the-dixie-fire-through-landsat-composites">A Fire History: The Dixie Fire Through Landsat Composites</h2>
+<p>Let’s use these composites to tell the story of California’s 2021 <a href="https://en.wikipedia.org/wiki/Dixie_Fire">Dixie Fire</a>—the state’s largest single-source wildfire at the time. We’ll examine the landscape before the fire, track vegetation through the burn period, and assess the fire’s impact. All with minimal preprocessing code.</p>
+<div id="8ad71f9e" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define our study area in the northern Sierra Nevada</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>region <span class="op">=</span> ee.Geometry.Rectangle([<span class="op">-</span><span class="fl">121.5</span>, <span class="fl">39.8</span>, <span class="op">-</span><span class="fl">120.5</span>, <span class="fl">40.5</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="the-landscape-before-2020-annual-composite" class="level3">
+<h3 class="anchored" data-anchor-id="the-landscape-before-2020-annual-composite">The Landscape Before: 2020 Annual Composite</h3>
+<p>First, let’s visualize the pre-fire landscape using a false-color composite (SWIR1, NIR, green) that highlights vegetation structure and moisture content. Healthy vegetation appears green, while exposed soil and rock show brown.</p>
+<div id="36fff7e0" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>prefire_annual <span class="op">=</span> (ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL'</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2020-01-01'</span>, <span class="st">'2021-01-01'</span>).first())</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>vis_falsecolor <span class="op">=</span> {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'bands'</span>: [<span class="st">'swir1'</span>, <span class="st">'nir'</span>, <span class="st">'green'</span>],</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'min'</span>: <span class="fl">0.0</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'max'</span>: <span class="fl">0.4</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> prefire_annual.unmask(<span class="dv">0</span>).getThumbURL({</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'region'</span>: region,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'dimensions'</span>: <span class="dv">800</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'format'</span>: <span class="st">'png'</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>vis_falsecolor</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>Image(url<span class="op">=</span>url)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<img src="https://earthengine.googleapis.com/v1/projects/ee-braaten/thumbnails/b0db81b55f914ffa1bf2912637d63c65-5e7ad0384b661b9ade4f759ae8d0956f:getPixels">
 </div>
 </div>
-<p>No cloud masking function. No pixel compositing logic. Just load and visualize.</p>
+<p>The northern Sierra Nevada in 2020: dense conifer forests, interspersed with meadows and chaparral.</p>
 </section>
-<section id="day-ndvi-time-series" class="level3">
-<h3 class="anchored" data-anchor-id="day-ndvi-time-series">8-Day NDVI Time Series</h3>
-<div id="0bddff7f" class="cell" data-execution_count="3">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>point <span class="op">=</span> ee.Geometry.Point([<span class="op">-</span><span class="fl">121.5</span>, <span class="fl">38.5</span>])</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>collection <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI'</span>) <span class="op">\</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2023-01-01'</span>, <span class="st">'2024-01-01'</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_ndvi(img):</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> img.date().<span class="bu">format</span>(<span class="st">"YYYY-MM-dd"</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    ndvi <span class="op">=</span> img.reduceRegion(</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        reducer<span class="op">=</span>ee.Reducer.mean(), </span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        geometry<span class="op">=</span>point, </span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        scale<span class="op">=</span><span class="dv">30</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    ).get(<span class="st">'NDVI'</span>)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ee.Feature(<span class="va">None</span>, {<span class="st">'date'</span>: date, <span class="st">'ndvi'</span>: ndvi})</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>timeseries <span class="op">=</span> collection.<span class="bu">map</span>(extract_ndvi).getInfo()</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> [f[<span class="st">'properties'</span>] <span class="cf">for</span> f <span class="kw">in</span> timeseries[<span class="st">'features'</span>]]</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(rows)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'date'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'date'</span>])</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>chart <span class="op">=</span> alt.Chart(df).mark_line(point<span class="op">=</span><span class="va">True</span>).encode(</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'date:T'</span>,</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span>alt.Y(<span class="st">'ndvi:Q'</span>, title<span class="op">=</span><span class="st">'NDVI'</span>),</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    tooltip<span class="op">=</span>[<span class="st">'date'</span>, <span class="st">'ndvi'</span>]</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>).properties(</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">'8-Day NDVI (Sacramento Valley, 2023)'</span>,</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    width<span class="op">=</span><span class="dv">650</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>chart</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="3">
-
-<style>
-  #altair-viz-f63869e1555a4d68a374bb4c2cbb9531.vega-embed {
-    width: 100%;
-    display: flex;
-  }
-
-  #altair-viz-f63869e1555a4d68a374bb4c2cbb9531.vega-embed details,
-  #altair-viz-f63869e1555a4d68a374bb4c2cbb9531.vega-embed details summary {
-    position: relative;
-  }
-</style>
-<div id="altair-viz-f63869e1555a4d68a374bb4c2cbb9531"></div>
-<script type="text/javascript">
-  var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
-  (function(spec, embedOpt){
-    let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-f63869e1555a4d68a374bb4c2cbb9531") {
-      outputDiv = document.getElementById("altair-viz-f63869e1555a4d68a374bb4c2cbb9531");
-    }
-
-    const paths = {
-      "vega": "https://cdn.jsdelivr.net/npm/vega@5?noext",
-      "vega-lib": "https://cdn.jsdelivr.net/npm/vega-lib?noext",
-      "vega-lite": "https://cdn.jsdelivr.net/npm/vega-lite@5.20.1?noext",
-      "vega-embed": "https://cdn.jsdelivr.net/npm/vega-embed@6?noext",
-    };
-
-    function maybeLoadScript(lib, version) {
-      var key = `${lib.replace("-", "")}_version`;
-      return (VEGA_DEBUG[key] == version) ?
-        Promise.resolve(paths[lib]) :
-        new Promise(function(resolve, reject) {
-          var s = document.createElement('script');
-          document.getElementsByTagName("head")[0].appendChild(s);
-          s.async = true;
-          s.onload = () => {
-            VEGA_DEBUG[key] = version;
-            return resolve(paths[lib]);
-          };
-          s.onerror = () => reject(`Error loading script: ${paths[lib]}`);
-          s.src = paths[lib];
-        });
-    }
-
-    function showError(err) {
-      outputDiv.innerHTML = `<div class="error" style="color:red;">${err}</div>`;
-      throw err;
-    }
-
-    function displayChart(vegaEmbed) {
-      vegaEmbed(outputDiv, spec, embedOpt)
-        .catch(err => showError(`Javascript Error: ${err.message}<br>This usually means there's a typo in your chart specification. See the javascript console for the full traceback.`));
-    }
-
-    if(typeof define === "function" && define.amd) {
-      requirejs.config({paths});
-      let deps = ["vega-embed"];
-      require(deps, displayChart, err => showError(`Error loading script: ${err.message}`));
-    } else {
-      maybeLoadScript("vega", "5")
-        .then(() => maybeLoadScript("vega-lite", "5.20.1"))
-        .then(() => maybeLoadScript("vega-embed", "6"))
-        .catch(showError)
-        .then(() => displayChart(vegaEmbed));
-    }
-  })({"config": {"view": {"continuousWidth": 300, "continuousHeight": 300}}, "data": {"name": "data-22ac70bfb363c4d3775781babd0e3abe"}, "mark": {"type": "line", "point": true}, "encoding": {"tooltip": [{"field": "date", "type": "temporal"}, {"field": "ndvi", "type": "quantitative"}], "x": {"field": "date", "type": "temporal"}, "y": {"field": "ndvi", "title": "NDVI", "type": "quantitative"}}, "title": "8-Day NDVI (Sacramento Valley, 2023)", "width": 650, "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json", "datasets": {"data-22ac70bfb363c4d3775781babd0e3abe": [{"date": "2023-01-01T00:00:00", "ndvi": null}, {"date": "2023-01-09T00:00:00", "ndvi": null}, {"date": "2023-01-17T00:00:00", "ndvi": 0.7214921911067573}, {"date": "2023-01-25T00:00:00", "ndvi": 0.7456582633053223}, {"date": "2023-02-02T00:00:00", "ndvi": null}, {"date": "2023-02-10T00:00:00", "ndvi": 0.7003737128771915}, {"date": "2023-02-18T00:00:00", "ndvi": null}, {"date": "2023-02-26T00:00:00", "ndvi": 0.6552469815589773}, {"date": "2023-03-06T00:00:00", "ndvi": null}, {"date": "2023-03-14T00:00:00", "ndvi": null}, {"date": "2023-03-22T00:00:00", "ndvi": 0.7012806810297952}, {"date": "2023-03-30T00:00:00", "ndvi": 0.7280278185204107}, {"date": "2023-04-07T00:00:00", "ndvi": 0.7828832781567017}, {"date": "2023-04-15T00:00:00", "ndvi": 0.7873272619556084}, {"date": "2023-04-23T00:00:00", "ndvi": 0.7988671012336453}, {"date": "2023-05-01T00:00:00", "ndvi": null}, {"date": "2023-05-09T00:00:00", "ndvi": 0.765051802516122}, {"date": "2023-05-17T00:00:00", "ndvi": 0.7571482116084816}, {"date": "2023-05-25T00:00:00", "ndvi": 0.7418542124955345}, {"date": "2023-06-02T00:00:00", "ndvi": 0.7206608298050335}, {"date": "2023-06-10T00:00:00", "ndvi": 0.7482755397700721}, {"date": "2023-06-18T00:00:00", "ndvi": 0.7546753745178264}, {"date": "2023-06-26T00:00:00", "ndvi": 0.7264039365248024}, {"date": "2023-07-04T00:00:00", "ndvi": 0.7644402330598175}, {"date": "2023-07-12T00:00:00", "ndvi": 0.7374624674516533}, {"date": "2023-07-20T00:00:00", "ndvi": 0.788420115824638}, {"date": "2023-07-28T00:00:00", "ndvi": 0.6883181696034396}, {"date": "2023-08-05T00:00:00", "ndvi": 0.7207960959929489}, {"date": "2023-08-13T00:00:00", "ndvi": 0.6786430834213305}, {"date": "2023-08-21T00:00:00", "ndvi": 0.7363466265546466}, {"date": "2023-08-29T00:00:00", "ndvi": 0.734634375428046}, {"date": "2023-09-06T00:00:00", "ndvi": 0.7866606000588816}, {"date": "2023-09-14T00:00:00", "ndvi": 0.7514899245871703}, {"date": "2023-09-22T00:00:00", "ndvi": 0.7456089391885593}, {"date": "2023-09-30T00:00:00", "ndvi": 0.7238142252506697}, {"date": "2023-10-08T00:00:00", "ndvi": 0.7235308365375883}, {"date": "2023-10-16T00:00:00", "ndvi": 0.7361453151083418}, {"date": "2023-10-24T00:00:00", "ndvi": 0.7764295739575316}, {"date": "2023-11-01T00:00:00", "ndvi": null}, {"date": "2023-11-09T00:00:00", "ndvi": null}, {"date": "2023-11-17T00:00:00", "ndvi": null}, {"date": "2023-11-25T00:00:00", "ndvi": 0.715623417598255}, {"date": "2023-12-03T00:00:00", "ndvi": 0.7387015285896041}, {"date": "2023-12-11T00:00:00", "ndvi": 0.732066700784715}, {"date": "2023-12-19T00:00:00", "ndvi": null}, {"date": "2023-12-27T00:00:00", "ndvi": null}]}}, {"mode": "vega-lite"});
-</script>
-</div>
-</div>
-<p>The NDVI is already computed—no band math required. If you need custom indices, use the surface reflectance composites instead.</p>
-</section>
-<section id="wildfire-burn-severity-dnbr" class="level3">
-<h3 class="anchored" data-anchor-id="wildfire-burn-severity-dnbr">Wildfire Burn Severity (dNBR)</h3>
-<div id="f200892e" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dixie Fire, August 2021</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>prefire <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR'</span>) <span class="op">\</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2021-06-15'</span>, <span class="st">'2021-07-15'</span>).mean()</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>postfire <span class="op">=</span> ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR'</span>) <span class="op">\</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2021-08-15'</span>, <span class="st">'2021-09-15'</span>).mean()</span>
+<section id="monitoring-vegetation-8-day-ndvi-through-2021" class="level3">
+<h3 class="anchored" data-anchor-id="monitoring-vegetation-8-day-ndvi-through-2021">Monitoring Vegetation: 8-Day NDVI Through 2021</h3>
+<p>To track forest productivity over the year, we’ll use <a href="https://developers.google.com/earth-engine/datasets/catalog/GOOGLE_DYNAMICWORLD_V1">Dynamic World</a> land cover data from May 2021 to isolate forest pixels, then monitor their NDVI. This gives us a pure forest signal.</p>
+<div id="1452d863" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create forest mask using Dynamic World (pre-fire)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>dw <span class="op">=</span> (ee.ImageCollection(<span class="st">'GOOGLE/DYNAMICWORLD/V1'</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2021-05-01'</span>, <span class="st">'2021-06-01'</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    .filterBounds(region)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    .select(<span class="st">'label'</span>))</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>dNBR <span class="op">=</span> prefire.subtract(postfire)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>forest_mask <span class="op">=</span> dw.mode().eq(<span class="dv">1</span>)  <span class="co"># Class 1 = trees</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>region <span class="op">=</span> ee.Geometry.Rectangle([<span class="op">-</span><span class="fl">122.5</span>, <span class="fl">39.8</span>, <span class="op">-</span><span class="fl">120.5</span>, <span class="fl">40.5</span>])</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>vis <span class="op">=</span> {<span class="st">'min'</span>: <span class="op">-</span><span class="fl">0.1</span>, <span class="st">'max'</span>: <span class="dv">1</span>, <span class="st">'palette'</span>: [<span class="st">'#006400'</span>, <span class="st">'#F0E68C'</span>, <span class="st">'#8B0000'</span>]}</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Get thumbnail URL and display</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> dNBR.getThumbURL({</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'region'</span>: region,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'dimensions'</span>: <span class="dv">800</span>,</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'format'</span>: <span class="st">'png'</span>,</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>vis</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>Image(url<span class="op">=</span>url)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="4">
-<img src="https://earthengine.googleapis.com/v1/projects/ee-braaten/thumbnails/ac88e278f039855607fcf884a7b6a557-2d91624c85dbc63b4c930ff1f2c1c2e6:getPixels">
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract NDVI time series from forest pixels</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>ndvi_collection <span class="op">=</span> (ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_8DAY_NDVI'</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2021-01-01'</span>, <span class="st">'2021-12-31'</span>))</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_ndvi(img):</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> img.date().<span class="bu">format</span>(<span class="st">"YYYY-MM-dd"</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    masked <span class="op">=</span> img.updateMask(forest_mask)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    stats <span class="op">=</span> masked.reduceRegion(</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        reducer<span class="op">=</span>ee.Reducer.mean(),</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        geometry<span class="op">=</span>region,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        scale<span class="op">=</span><span class="dv">90</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ee.Feature(<span class="va">None</span>, {</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">'date'</span>: date,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">'NDVI'</span>: stats.get(<span class="st">'NDVI'</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>features <span class="op">=</span> ndvi_collection.<span class="bu">map</span>(extract_ndvi)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> ee.data.computeFeatures({</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">'expression'</span>: features,</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">'fileFormat'</span>: <span class="st">'PANDAS_DATAFRAME'</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'date'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'date'</span>])</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>chart <span class="op">=</span> (</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    alt.Chart(df)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    .mark_point(filled<span class="op">=</span><span class="va">True</span>, size<span class="op">=</span><span class="dv">200</span>, color<span class="op">=</span><span class="st">'green'</span>)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    .encode(</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span>alt.X(<span class="st">'date:T'</span>, title<span class="op">=</span><span class="st">'Date'</span>),</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span>alt.Y(<span class="st">'NDVI:Q'</span>, title<span class="op">=</span><span class="st">'NDVI'</span>, scale<span class="op">=</span>alt.Scale(domain<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">1</span>])),</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        tooltip<span class="op">=</span>[<span class="st">'date:T'</span>, alt.Tooltip(<span class="st">'NDVI:Q'</span>, <span class="bu">format</span><span class="op">=</span><span class="st">'.3f'</span>)]</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>).properties(</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    width<span class="op">=</span><span class="dv">800</span>,</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">300</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>chart.save(<span class="st">'ndvi_timeseries.png'</span>)</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>Image(url<span class="op">=</span><span class="st">'ndvi_timeseries.png'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<img src="ndvi_timeseries.png">
 </div>
 </div>
-<p>Pre- and post-fire NBR composites already masked and mosaicked. Compute the difference and you’re done.</p>
+<p>Regional 8-day NDVI for forest pixels. Some observations may not be available because satellite scheduling or cloud masking.</p>
+</section>
+<section id="fire-comparison-before-and-after" class="level3">
+<h3 class="anchored" data-anchor-id="fire-comparison-before-and-after">Fire Comparison: Before and After</h3>
+<p>Now let’s compare the landscape immediately before and after the main burn period using enhanced true‑color (SWIR1–NIR–green) composites.</p>
+<div id="fa3dabda" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pre-fire composite (May-June 2021)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>prefire_summer <span class="op">=</span> (ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_32DAY'</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2021-05-01'</span>, <span class="st">'2021-07-01'</span>).mean())</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>vis_enhanced <span class="op">=</span> {</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'bands'</span>: [<span class="st">'swir1'</span>, <span class="st">'nir'</span>, <span class="st">'green'</span>],</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'min'</span>: <span class="fl">0.0</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'max'</span>: <span class="fl">0.4</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>url_prefire <span class="op">=</span> prefire_summer.unmask(<span class="dv">0</span>).getThumbURL({</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'region'</span>: region,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'dimensions'</span>: <span class="dv">800</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'format'</span>: <span class="st">'png'</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>vis_enhanced</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>Image(url<span class="op">=</span>url_prefire)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="26">
+<img src="https://earthengine.googleapis.com/v1/projects/ee-braaten/thumbnails/a9bd77425277a9a0127e242636c1447f-46e6866906f823e82bece6085ed89b4c:getPixels">
+</div>
+</div>
+<p>Green canopy dominates in early summer 2021, shortly before ignition.</p>
+<div id="241cf4d8" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Post-fire composite (September-October 2021)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>postfire_fall <span class="op">=</span> (ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_32DAY'</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2021-09-01'</span>, <span class="st">'2021-11-01'</span>).mean())</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>url_postfire <span class="op">=</span> postfire_fall.unmask(<span class="dv">0</span>).getThumbURL({</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'region'</span>: region,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'dimensions'</span>: <span class="dv">800</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'format'</span>: <span class="st">'png'</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>vis_enhanced</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>Image(url<span class="op">=</span>url_postfire)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="27">
+<img src="https://earthengine.googleapis.com/v1/projects/ee-braaten/thumbnails/b105cfa54f0319855aff60feaf752691-96cacbb6b4f34ebc58416689ecd3637b:getPixels">
+</div>
+</div>
+<p>By fall, the burn scar is evident: brown and gray tones replace the green canopy where fire consumed over 960,000 acres.</p>
+</section>
+<section id="burn-severity-differenced-nbr" class="level3">
+<h3 class="anchored" data-anchor-id="burn-severity-differenced-nbr">Burn Severity: Differenced NBR</h3>
+<p>Finally, we’ll quantify burn severity using the Normalized Burn Ratio (NBR). High dNBR values indicate severe fire impact.</p>
+<div id="fcf087a3" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pre-fire NBR</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>prefire_nbr <span class="op">=</span> (ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR'</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2021-05-01'</span>, <span class="st">'2021-07-01'</span>).mean())</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Post-fire NBR</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>postfire_nbr <span class="op">=</span> (ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR'</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2021-09-01'</span>, <span class="st">'2021-11-01'</span>).mean())</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>dNBR <span class="op">=</span> prefire_nbr.subtract(postfire_nbr)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualization parameters (single-band; no need to specify 'bands')</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>vis_dnbr <span class="op">=</span> {</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'min'</span>: <span class="op">-</span><span class="fl">0.1</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'max'</span>: <span class="fl">1.0</span>,</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'palette'</span>: [<span class="st">'#006400'</span>, <span class="st">'#FFFFE0'</span>, <span class="st">'#FFA500'</span>, <span class="st">'#FF0000'</span>, <span class="st">'#8B0000'</span>]</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to RGB with palette.</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>rgb <span class="op">=</span> dNBR.visualize(<span class="op">**</span>vis_dnbr).unmask(<span class="dv">0</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>url_dnbr <span class="op">=</span> rgb.getThumbURL({</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">'region'</span>: region,</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">'dimensions'</span>: <span class="dv">800</span>,</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">'format'</span>: <span class="st">'png'</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>Image(url<span class="op">=</span>url_dnbr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<img src="https://earthengine.googleapis.com/v1/projects/ee-braaten/thumbnails/a22bc5face1b82ed6f395a3f14ecde9a-ff5f38d40aa463f36a666e127b088046:getPixels">
+</div>
+</div>
+<p>Dark red shows high-severity burn where complete canopy loss occurred. Yellow-orange indicates moderate severity. Green represents unburned or low-severity areas. The composites provide analysis-ready NBR—no manual index calculation required.</p>
 </section>
 </section>
 <section id="why-this-matters" class="level2">
 <h2 class="anchored" data-anchor-id="why-this-matters">Why This Matters</h2>
-<p>Without these composites, a typical Landsat workflow looks like this:</p>
-<ol type="1">
-<li>Define cloud/shadow masking function</li>
-<li>Filter raw scenes by date and bounds</li>
-<li>Map masking function over collection</li>
-<li>Mosaic or reduce pixels</li>
-<li>Finally: do the actual analysis</li>
-</ol>
-<p>With the composite collections, you skip steps 1–4. That’s less code to write, debug, and maintain. It’s especially valuable for:</p>
+<p>The Dixie Fire analysis above required ~50 lines of code. A traditional workflow—cloud masking, mosaicking, computing indices—would take 200+ lines and might require managing intermediate outputs.</p>
+<p>These composites eliminate preprocessing friction, letting you focus on the science:</p>
 <ul>
-<li><strong>Rapid prototyping</strong>: test an idea without boilerplate overhead</li>
-<li><strong>Teaching</strong>: focus on concepts, not preprocessing mechanics</li>
-<li><strong>Consistent baselines</strong>: everyone uses the same masking/compositing logic</li>
+<li><strong>Multi-temporal analysis</strong>: Track phenology, disturbance, or recovery without wrestling with scene selection</li>
+<li><strong>Reproducibility</strong>: Everyone uses the same masking/compositing logic, reducing methods variability</li>
+<li><strong>Teaching</strong>: Students learn remote sensing concepts, not preprocessing mechanics</li>
 </ul>
 </section>
 <section id="try-it" class="level2">
 <h2 class="anchored" data-anchor-id="try-it">Try It</h2>
-<p>Load <code>LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL</code> or one of the index collections in your next script. Check the <a href="https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_COMPOSITES_C02_T1_L2_ANNUAL">Earth Engine Data Catalog</a> for full documentation on bands, properties, and temporal coverage.</p>
-<p>Explore the 8-day or 32-day variants if you need finer temporal resolution. The collections are updated regularly as new Landsat data arrives.</p>
+<p>Start with the <a href="https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_COMPOSITES_C02_T1_L2_ANNUAL">LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL</a> collection for baseline mapping. Use 32-day for seasonal monitoring or 8-day when you need to resolve weekly dynamics.</p>
+<p>For index collections (NDVI, NBR, EVI, etc.), you can skip band math entirely—just load and analyze. The <a href="https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_COMPOSITES_C02_T1_L2_8DAY_NDVI">catalog documentation</a> provides full details on temporal coverage and band properties.</p>
+<p>These collections update as new Landsat data arrives, making them suitable for both historical analysis and near-real-time monitoring.</p>
 
 
 </section>

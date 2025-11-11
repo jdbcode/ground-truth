@@ -40,6 +40,19 @@ What is this and why it might be useful.
 print("hello, ground-truth")
 ```
 
+## Example Chart (Optional)
+
+```{python}
+# Example Altair chart with static PNG output
+# df = pd.DataFrame({'x': [1, 2, 3], 'y': [4, 5, 6]})
+# chart = alt.Chart(df).mark_line(point=True).encode(
+#     x=alt.X('x:Q', title='X Axis'),
+#     y=alt.Y('y:Q', title='Y Axis')
+# ).properties(width=650, height=300)
+# chart.save('chart.png', scale_factor=2.0)
+# Image(url='chart.png')
+```
+
 ## Links
 - Dataset:
 - Docs:

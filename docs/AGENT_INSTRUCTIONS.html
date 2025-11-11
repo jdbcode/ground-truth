@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="keywords" content="Earth Engine, Geospatial Analysis, Python, Google Cloud, Remote Sensing, Raster Data, Datasets">
-<meta name="description" content="Short, rough-cut notes on Earth Engine, geospatial analysis, Python libraries, Google Cloud, and datasets — sharing discoveries, tips, and dataset/app announcements.">
+<meta name="description" content="Data-driven stories and practical notes on Earth Engine, geospatial analysis, and remote sensing.">
 
 <title>agent_instructions – Ground Truth</title>
 <style>
@@ -177,7 +177,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div>
   <div class="description">
-    Short, rough-cut notes on Earth Engine, geospatial analysis, Python libraries, Google Cloud, and datasets — sharing discoveries, tips, and dataset/app announcements.
+    Data-driven stories and practical notes on Earth Engine, geospatial analysis, and remote sensing.
   </div>
 </div>
 
@@ -256,7 +256,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="chart-guidelines">Chart Guidelines</h2>
 <ul>
 <li>Use Altair for exploratory charts; inline creation.</li>
-<li>Use width 650 for charts.</li>
+<li>Use width 800 for charts.</li>
+<li>Save Altair charts to PNG for smaller HTML file size: <code>chart.save('filename.png')</code></li>
+<li>Display saved charts with: <code>Image(url='filename.png')</code></li>
 <li>Titles concise; axes labeled.</li>
 <li>For time series: convert FeatureCollection to client-side list carefully (limit temporal range).</li>
 </ul>
@@ -319,14 +321,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'date'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'date'</span>])</span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>chart <span class="op">=</span> alt.Chart(df).mark_line(point<span class="op">=</span><span class="va">True</span>).encode(</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'date:T'</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>alt.X(<span class="st">'date:T'</span>, title<span class="op">=</span><span class="st">'Date'</span>),</span>
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span>alt.Y(<span class="st">'ndvi:Q'</span>, title<span class="op">=</span><span class="st">'NDVI'</span>),</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    tooltip<span class="op">=</span>[<span class="st">'date'</span>, <span class="st">'ndvi'</span>]</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    tooltip<span class="op">=</span>[<span class="st">'date:T'</span>, alt.Tooltip(<span class="st">'ndvi:Q'</span>, <span class="bu">format</span><span class="op">=</span><span class="st">'.3f'</span>)]</span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>).properties(</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">'8-Day NDVI (2023)'</span>,</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    width<span class="op">=</span><span class="dv">650</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    width<span class="op">=</span><span class="dv">800</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">300</span></span>
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>chart</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>chart.save(<span class="st">'ndvi_chart.png'</span>, scale_factor<span class="op">=</span><span class="fl">2.0</span>)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>Image(url<span class="op">=</span><span class="st">'ndvi_chart.png'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>(Agent: ensure performance; for large collections, reduce temporal range.)</p>
 </section>
 </section>
