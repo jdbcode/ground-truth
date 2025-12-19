@@ -46,6 +46,27 @@ Image(url=url)
 - Keep zoom/region appropriate for the content
 - This approach works reliably with Quarto rendering and shows readers practical EE code
 
+### Persist Earth Engine images (avoid expiring tokens)
+- Always save EE thumbs to local PNGs and display those paths in posts so images stay valid after publish.
+- Include a visible setup chunk with a small helper:
+    ```python
+    from pathlib import Path
+    from urllib.request import urlopen
+
+    def save_image(url: str, filename: str) -> Path:
+            dest = Path(filename)
+            with urlopen(url) as response, open(dest, "wb") as fp:
+                    fp.write(response.read())
+            return dest
+    ```
+- Pattern when rendering images:
+    ```python
+    url = image.getThumbURL({...})
+    save_image(url, 'my_image.png')
+    Image(url='my_image.png')
+    ```
+- Keep images in the post folder; Quarto will copy them into `docs/` during render.
+
 ## Chart Guidelines
 - Use Altair for exploratory charts; inline creation.
 - Use width 800 for charts.
