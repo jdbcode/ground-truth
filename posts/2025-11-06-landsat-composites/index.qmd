@@ -44,11 +44,25 @@ These save you from writing (and maintaining) the typical cloud masking function
     - Omit L8–L9 pixels with any QA_AEROSOL issues
     - Omit saturated or out‑of‑bounds pixels
 
+## Setup
+
+The examples below run on a Jupyter kernel with Python 3.10+, `earthengine-api`, `pandas`, and `altair` installed. Replace `'ee-braaten'` with your own Earth Engine project ID to run locally.
+
 ```{python}
 import ee
 import pandas as pd
 import altair as alt
 from IPython.display import Image
+from pathlib import Path
+from urllib.request import urlopen
+
+
+def save_image(url: str, filename: str) -> Path:
+    """Download an EE thumb URL to a local PNG so the post can embed it."""
+    dest = Path(filename)
+    with urlopen(url) as response, open(dest, "wb") as fp:
+        fp.write(response.read())
+    return dest
 
 ee.Initialize(project='ee-braaten')  # Replace with your project ID
 ```
@@ -82,7 +96,8 @@ url = prefire_annual.unmask(0).getThumbURL({
     'format': 'png',
     **vis_falsecolor
 })
-Image(url=url)
+save_image(url, 'prefire_annual_falsecolor.png')
+Image(url='prefire_annual_falsecolor.png')
 ```
 
 The northern Sierra Nevada in 2020: dense conifer forests, interspersed with meadows and chaparral.
@@ -163,7 +178,8 @@ url_prefire = prefire_summer.unmask(0).getThumbURL({
     'format': 'png',
     **vis_enhanced
 })
-Image(url=url_prefire)
+save_image(url_prefire, 'prefire_summer_enhanced.png')
+Image(url='prefire_summer_enhanced.png')
 ```
 
 Green canopy dominates in early summer 2021, shortly before ignition.
@@ -179,10 +195,11 @@ url_postfire = postfire_fall.unmask(0).getThumbURL({
     'format': 'png',
     **vis_enhanced
 })
-Image(url=url_postfire)
+save_image(url_postfire, 'postfire_fall_enhanced.png')
+Image(url='postfire_fall_enhanced.png')
 ```
 
-By fall, the burn scar is evident: brown and gray tones replace the green canopy where fire consumed over 960,000 acres.
+By fall, the burn scar is evident: brown and red tones replace the green canopy where fire consumed over 960,000 acres.
 
 ### Burn Severity: Differenced NBR
 
@@ -213,7 +230,8 @@ url_dnbr = rgb.getThumbURL({
     'dimensions': 800,
     'format': 'png'
 })
-Image(url=url_dnbr)
+save_image(url_dnbr, 'dnbr_map.png')
+Image(url='dnbr_map.png')
 ```
 
 Dark red shows high-severity burn where complete canopy loss occurred. Yellow-orange indicates moderate severity. Green represents unburned or low-severity areas. The composites provide analysis-ready NBR—no manual index calculation required.
