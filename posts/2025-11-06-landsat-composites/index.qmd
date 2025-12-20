@@ -46,7 +46,7 @@ These save you from writing (and maintaining) the typical cloud masking function
 
 ## Setup
 
-The examples below run on a Jupyter kernel with Python 3.10+, `earthengine-api`, `pandas`, and `altair` installed. Replace `'ee-braaten'` with your own Earth Engine project ID to run locally.
+The examples below run on a Jupyter kernel with Python 3.10+, `earthengine-api`, `pandas`, and `altair` installed. Set `EE_PROJECT_ID` in your environment or edit `PROJECT_ID` below to your Earth Engine project before running.
 
 ```{python}
 import ee
@@ -55,6 +55,7 @@ import altair as alt
 from IPython.display import Image
 from pathlib import Path
 from urllib.request import urlopen
+import os
 
 
 def save_image(url: str, filename: str) -> Path:
@@ -64,7 +65,9 @@ def save_image(url: str, filename: str) -> Path:
         fp.write(response.read())
     return dest
 
-ee.Initialize(project='ee-braaten')  # Replace with your project ID
+# Prefer env var; readers can also hardcode directly if preferred.
+PROJECT_ID = os.environ.get("EE_PROJECT_ID", "YOUR_PROJECT_ID")
+ee.Initialize(project=PROJECT_ID)
 ```
 
 ## A Fire History: The Dixie Fire Through Landsat Composites

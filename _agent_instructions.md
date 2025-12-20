@@ -25,7 +25,9 @@ import pandas as pd
 import altair as alt
 from IPython.display import Image
 
-ee.Initialize(project='ee-braaten')  # Replace with your project ID
+# Prefer env var; readers can also hardcode directly if preferred.
+PROJECT_ID = os.environ.get("EE_PROJECT_ID", "YOUR_PROJECT_ID")
+ee.Initialize(project=PROJECT_ID)
 ```
 
 For rendering, use the author's actual project. Readers will replace with their own.

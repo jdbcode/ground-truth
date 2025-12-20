@@ -252,37 +252,40 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="setup" class="level2">
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
-<p>The examples below run on a Jupyter kernel with Python 3.10+, <code>earthengine-api</code>, <code>pandas</code>, and <code>altair</code> installed. Replace <code>'ee-braaten'</code> with your own Earth Engine project ID to run locally.</p>
-<div id="060b3aa4" class="cell" data-execution_count="1">
+<p>The examples below run on a Jupyter kernel with Python 3.10+, <code>earthengine-api</code>, <code>pandas</code>, and <code>altair</code> installed. Set <code>EE_PROJECT_ID</code> in your environment or edit <code>PROJECT_ID</code> below to your Earth Engine project before running.</p>
+<div id="8c2aef3e" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ee</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> altair <span class="im">as</span> alt</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Image</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> urllib.request <span class="im">import</span> urlopen</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> save_image(url: <span class="bu">str</span>, filename: <span class="bu">str</span>) <span class="op">-&gt;</span> Path:</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Download an EE thumb URL to a local PNG so the post can embed it."""</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    dest <span class="op">=</span> Path(filename)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> urlopen(url) <span class="im">as</span> response, <span class="bu">open</span>(dest, <span class="st">"wb"</span>) <span class="im">as</span> fp:</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        fp.write(response.read())</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dest</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>ee.Initialize(project<span class="op">=</span><span class="st">'ee-braaten'</span>)  <span class="co"># Replace with your project ID</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> save_image(url: <span class="bu">str</span>, filename: <span class="bu">str</span>) <span class="op">-&gt;</span> Path:</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Download an EE thumb URL to a local PNG so the post can embed it."""</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    dest <span class="op">=</span> Path(filename)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> urlopen(url) <span class="im">as</span> response, <span class="bu">open</span>(dest, <span class="st">"wb"</span>) <span class="im">as</span> fp:</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        fp.write(response.read())</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dest</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Prefer env var; readers can also hardcode directly if preferred.</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>PROJECT_ID <span class="op">=</span> os.environ.get(<span class="st">"EE_PROJECT_ID"</span>, <span class="st">"YOUR_PROJECT_ID"</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>ee.Initialize(project<span class="op">=</span>PROJECT_ID)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="a-fire-history-the-dixie-fire-through-landsat-composites" class="level2">
 <h2 class="anchored" data-anchor-id="a-fire-history-the-dixie-fire-through-landsat-composites">A Fire History: The Dixie Fire Through Landsat Composites</h2>
 <p>Let’s use these composites to tell the story of California’s 2021 <a href="https://en.wikipedia.org/wiki/Dixie_Fire">Dixie Fire</a>—the state’s largest single-source wildfire at the time. We’ll examine the landscape before the fire, track vegetation through the burn period, and assess the fire’s impact. All with minimal preprocessing code.</p>
-<div id="f79d71d9" class="cell" data-execution_count="2">
+<div id="86cd8817" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define our study area in the northern Sierra Nevada</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>region <span class="op">=</span> ee.Geometry.Rectangle([<span class="op">-</span><span class="fl">121.5</span>, <span class="fl">39.8</span>, <span class="op">-</span><span class="fl">120.5</span>, <span class="fl">40.5</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="the-landscape-before-2020-annual-composite" class="level3">
 <h3 class="anchored" data-anchor-id="the-landscape-before-2020-annual-composite">The Landscape Before: 2020 Annual Composite</h3>
 <p>First, let’s visualize the pre-fire landscape using a false-color composite (SWIR1, NIR, green) that highlights vegetation structure and moisture content. Healthy vegetation appears green, while exposed soil and rock show brown.</p>
-<div id="e38e0aab" class="cell" data-execution_count="3">
+<div id="dd593e57" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>prefire_annual <span class="op">=</span> (ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_ANNUAL'</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2020-01-01'</span>, <span class="st">'2021-01-01'</span>).first())</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -309,7 +312,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="monitoring-vegetation-8-day-ndvi-through-2021" class="level3">
 <h3 class="anchored" data-anchor-id="monitoring-vegetation-8-day-ndvi-through-2021">Monitoring Vegetation: 8-Day NDVI Through 2021</h3>
 <p>To track forest productivity over the year, we’ll use <a href="https://developers.google.com/earth-engine/datasets/catalog/GOOGLE_DYNAMICWORLD_V1">Dynamic World</a> land cover data from May 2021 to isolate forest pixels, then monitor their NDVI. This gives us a pure forest signal.</p>
-<div id="e89e8eb6" class="cell" data-execution_count="4">
+<div id="9ab8eb05" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create forest mask using Dynamic World (pre-fire)</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>dw <span class="op">=</span> (ee.ImageCollection(<span class="st">'GOOGLE/DYNAMICWORLD/V1'</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2021-05-01'</span>, <span class="st">'2021-06-01'</span>)</span>
@@ -365,7 +368,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="fire-comparison-before-and-after" class="level3">
 <h3 class="anchored" data-anchor-id="fire-comparison-before-and-after">Fire Comparison: Before and After</h3>
 <p>Now let’s compare the landscape immediately before and after the main burn period using enhanced true‑color (SWIR1–NIR–green) composites.</p>
-<div id="1d2347b2" class="cell" data-execution_count="5">
+<div id="82723163" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pre-fire composite (May-June 2021)</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>prefire_summer <span class="op">=</span> (ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_32DAY'</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2021-05-01'</span>, <span class="st">'2021-07-01'</span>).mean())</span>
@@ -389,7 +392,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Green canopy dominates in early summer 2021, shortly before ignition.</p>
-<div id="0f58d08f" class="cell" data-execution_count="6">
+<div id="3ea910b0" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Post-fire composite (September-October 2021)</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>postfire_fall <span class="op">=</span> (ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_32DAY'</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2021-09-01'</span>, <span class="st">'2021-11-01'</span>).mean())</span>
@@ -406,12 +409,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <img src="postfire_fall_enhanced.png">
 </div>
 </div>
-<p>By fall, the burn scar is evident: brown and gray tones replace the green canopy where fire consumed over 960,000 acres.</p>
+<p>By fall, the burn scar is evident: brown and red tones replace the green canopy where fire consumed over 960,000 acres.</p>
 </section>
 <section id="burn-severity-differenced-nbr" class="level3">
 <h3 class="anchored" data-anchor-id="burn-severity-differenced-nbr">Burn Severity: Differenced NBR</h3>
 <p>Finally, we’ll quantify burn severity using the Normalized Burn Ratio (NBR). High dNBR values indicate severe fire impact.</p>
-<div id="ddfd0288" class="cell" data-execution_count="7">
+<div id="6c9779ac" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pre-fire NBR</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>prefire_nbr <span class="op">=</span> (ee.ImageCollection(<span class="st">'LANDSAT/COMPOSITES/C02/T1_L2_32DAY_NBR'</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2021-05-01'</span>, <span class="st">'2021-07-01'</span>).mean())</span>

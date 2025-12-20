@@ -20,6 +20,7 @@ website:
 
 execute:
   dir: project
+  cache: false
 
 format:
   html:

@@ -1,5 +1,5 @@
 ---
-title: "Gaia Lens Blog"
+title: "Ground Truth Blog"
 listing:
   contents: posts
   sort: "date desc"
@@ -8,5 +8,3 @@ listing:
   sort-ui: false
   filter-ui: false
 ---
-
-Welcome to the Gaia Lens Blog. Recent posts are listed below.
