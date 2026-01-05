@@ -356,7 +356,7 @@ The synthetic green band creates natural-looking vegetation, atmospheric correct
 
 ## Creating the Solstice Animation
 
-Now for the main event: 24 hours across the winter solstice, watching illumination across CONUS at the annual northern hemisphere minimum. Here we use [geemap](https://geemap.org/) to download the GIF and add a time stamp to each frame and a progress bar to the bottom. Note that `geemap.download_ee_video` calls `ee.ImageCollection.getVideoThumbURL` which has a limit on pixels/download size that can be. If you require larger downloads, see the export to Google Cloud Storage section below or manage downloading and rendering frames with your own system.
+Now for the main event: 24 hours across the winter solstice, watching illumination across CONUS at the annual northern hemisphere minimum. Here we use [geemap](https://geemap.org/) to download the GIF and add a time stamp to each frame and a progress bar to the bottom. Note that `geemap.download_ee_video` calls `ee.ImageCollection.getVideoThumbURL` which has a limit on pixels/download size. If you require larger downloads, see the export to Google Cloud Storage section below or manage downloading and rendering frames with your own system.
 
 ```{python}
 #| eval: false

@@ -242,7 +242,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="setup" class="level2">
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
 <p>The examples below run on a Jupyter kernel with Python 3.10+, <code>earthengine-api</code> and <code>geemap</code> installed. Set <code>EE_PROJECT_ID</code> in your environment or edit <code>PROJECT_ID</code> below to your Earth Engine project before running.</p>
-<div id="7925c498" class="cell" data-execution_count="1">
+<div id="d4de254e" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ee</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> geemap</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Image, display, Markdown</span>
@@ -267,7 +267,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="step-1-configuration-and-utilities" class="level2">
 <h2 class="anchored" data-anchor-id="step-1-configuration-and-utilities">Step 1: Configuration and Utilities</h2>
 <p>We’ll start by defining satellite positions and border overlays, then create a utility for applying scale factors from GOES image metadata. Note that we’re including GOES 16 and 17, in case you’re doing historical analysis.</p>
-<div id="f5020964" class="cell" data-execution_count="3">
+<div id="4e96ccb6" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Satellite longitude positions.</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>GOES_LONGITUDES <span class="op">=</span> {</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'16'</span>: <span class="op">-</span><span class="dv">75</span>,   <span class="co"># East (retired)</span></span>
@@ -302,7 +302,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="step-2-geometry-calculations" class="level2">
 <h2 class="anchored" data-anchor-id="step-2-geometry-calculations">Step 2: Geometry Calculations</h2>
 <p>GeoColor requires two angle calculations: solar zenith (for day/night blending) and satellite zenith (for atmospheric correction).</p>
-<div id="d1737953" class="cell" data-execution_count="4">
+<div id="f73b024a" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_sun_zenith(image):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate cosine of solar zenith angle for each pixel."""</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    time_ms <span class="op">=</span> image.date().millis()</span>
@@ -359,7 +359,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="step-3-daytime-true-color" class="level2">
 <h2 class="anchored" data-anchor-id="step-3-daytime-true-color">Step 3: Daytime True Color</h2>
 <p>The daytime layer uses GOES bands 1-3 (blue, red, vegetation red edge) to create a synthetic green band, then applies atmospheric haze correction and solar-aware gamma stretching.</p>
-<div id="3ca11817" class="cell" data-execution_count="5">
+<div id="e3d47c4c" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_daytime_layer(image, sat_lon, cos_sun):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Generate corrected true-color RGB for daytime."""</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    img <span class="op">=</span> apply_scale_factors(image)</span>
@@ -408,7 +408,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="step-4-nighttime-enhancement" class="level2">
 <h2 class="anchored" data-anchor-id="step-4-nighttime-enhancement">Step 4: Nighttime Enhancement</h2>
 <p>The nighttime layer combines VIIRS city lights, terrain-shaded elevation, and infrared cloud imagery. This is where GeoColor really shines—literally. Note that the night lights layer is the 2024 median of the VIIRS VCMSLCFG product.</p>
-<div id="f9b541bf" class="cell" data-execution_count="6">
+<div id="345ad127" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Static nighttime assets.</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>CITY_LIGHTS <span class="op">=</span> ee.ImageCollection(<span class="st">"NOAA/VIIRS/DNB/MONTHLY_V1/VCMSLCFG"</span>) <span class="op">\</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2024-01-01'</span>, <span class="st">'2025-01-01'</span>).select(<span class="st">'avg_rad'</span>) <span class="op">\</span></span>
@@ -460,7 +460,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="step-5-blending-and-processing" class="level2">
 <h2 class="anchored" data-anchor-id="step-5-blending-and-processing">Step 5: Blending and Processing</h2>
 <p>Now we combine daytime and nighttime layers with a smooth transition based on solar angle, then overlay borders.</p>
-<div id="5548311c" class="cell" data-execution_count="7">
+<div id="89504390" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> process_single_image(image, sat_lon):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Generate GeoColor composite with borders."""</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate solar angle.</span></span>
@@ -514,7 +514,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="a-midday-example" class="level2">
 <h2 class="anchored" data-anchor-id="a-midday-example">A Midday Example</h2>
 <p>Let’s render a single GeoColor frame from midday on the solstice to see the result before animating.</p>
-<div id="76057365" class="cell" data-execution_count="8">
+<div id="8b8cac73" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get a single image.</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>single_col <span class="op">=</span> get_goes_collection(</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"NOAA/GOES/19/MCMIPF"</span>,</span>
@@ -538,7 +538,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>output_image <span class="op">=</span> <span class="st">'goes_midday.png'</span></span>
 <span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>save_image(url, output_image)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="1f142c56" class="cell" data-execution_count="9">
+<div id="95b02c36" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the midday image.</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>Image(url<span class="op">=</span><span class="st">'goes_midday.png'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
@@ -549,8 +549,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="creating-the-solstice-animation" class="level2">
 <h2 class="anchored" data-anchor-id="creating-the-solstice-animation">Creating the Solstice Animation</h2>
-<p>Now for the main event: 24 hours across the winter solstice, watching illumination across CONUS at the annual northern hemisphere minimum. Here we use <a href="https://geemap.org/">geemap</a> to download the GIF and add a time stamp to each frame and a progress bar to the bottom. Note that <code>geemap.download_ee_video</code> calls <code>ee.ImageCollection.getVideoThumbURL</code> which has a limit on pixels/download size that can be. If you require larger downloads, see the export to Google Cloud Storage section below or manage downloading and rendering frames with your own system.</p>
-<div id="f9018144" class="cell" data-execution_count="10">
+<p>Now for the main event: 24 hours across the winter solstice, watching illumination across CONUS at the annual northern hemisphere minimum. Here we use <a href="https://geemap.org/">geemap</a> to download the GIF and add a time stamp to each frame and a progress bar to the bottom. Note that <code>geemap.download_ee_video</code> calls <code>ee.ImageCollection.getVideoThumbURL</code> which has a limit on pixels/download size. If you require larger downloads, see the export to Google Cloud Storage section below or manage downloading and rendering frames with your own system.</p>
+<div id="9ad07a39" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define animation parameters.</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>roi <span class="op">=</span> ee.Geometry.Rectangle([<span class="op">-</span><span class="fl">125.0</span>, <span class="fl">24.0</span>, <span class="op">-</span><span class="fl">66.0</span>, <span class="fl">50.0</span>], <span class="va">None</span>, <span class="va">False</span>)  <span class="co"># CONUS</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>start_date <span class="op">=</span> <span class="st">'2025-12-21T04:30'</span>  <span class="co"># Pre-dawn</span></span>
@@ -594,7 +594,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    duration<span class="op">=</span><span class="dv">100</span></span>
 <span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="ee2e1a43" class="cell" data-execution_count="11">
+<div id="2fc5c4f8" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the animation.</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">'![](goes_solstice_animation.gif)'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display cell-output-markdown">
@@ -613,7 +613,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="complete-code-and-export-options">Complete Code and Export Options</h2>
 <p>The full implementation is available as a <a href="https://gist.github.com/jdbcode/f6639195ce3a2f7ebed15b2aee4d5ea3">GitHub Gist</a> and <a href="https://colab.sandbox.google.com/gist/jdbcode/f6639195ce3a2f7ebed15b2aee4d5ea3/replicating_goes_geocolor_in_earth_engine.ipynb">Google Colab notebook</a> for easy experimentation.</p>
 <p>For high-resolution exports, use Earth Engine’s batch export to Google Cloud Storage:</p>
-<div id="b1f87bcb" class="cell" data-execution_count="12">
+<div id="e7e6c89f" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>task <span class="op">=</span> ee.batch.Export.video.toCloudStorage(</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    collection<span class="op">=</span>goes_col,</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    description<span class="op">=</span><span class="st">'goes_geocolor_solstice'</span>,</span>
