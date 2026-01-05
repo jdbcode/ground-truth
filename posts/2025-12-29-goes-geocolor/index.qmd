@@ -349,7 +349,7 @@ save_image(url, output_image)
 
 ```{python}
 # Display the midday image.
-Image('goes_midday.png')
+Image(url='goes_midday.png')
 ```
 
 The synthetic green band creates natural-looking vegetation, atmospheric correction reduces haze, and state borders provide geographic context. In the upper left you can see the nightime begin to fade to day.
