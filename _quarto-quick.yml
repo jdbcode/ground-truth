@@ -1,0 +1,4 @@
+# _quarto-quick.yml
+execute:
+  enabled: false   # Disables execution of code cells
+  freeze: true     # Forces usage of existing frozen computations (if any)

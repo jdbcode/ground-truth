@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Justin Braaten">
+<meta name="dcterms.date" content="2025-12-29">
+<meta name="keywords" content="Earth Engine, Geospatial Analysis, Python, Google Cloud, Remote Sensing, Raster Data, Datasets">
+<meta name="description" content="Data-driven stories and practical notes on Earth Engine, geospatial analysis, and remote sensing.">
+
+<title>Replicating GOES GeoColor in Earth Engine: A Winter Solstice Showcase – Ground Truth</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-d7969a61e7c9056c56fa992c25e0b57f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Ground Truth</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#what-is-goes" id="toc-what-is-goes" class="nav-link active" data-scroll-target="#what-is-goes">What is GOES?</a></li>
+  <li><a href="#what-is-geocolor" id="toc-what-is-geocolor" class="nav-link" data-scroll-target="#what-is-geocolor">What is GeoColor?</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#step-1-configuration-and-utilities" id="toc-step-1-configuration-and-utilities" class="nav-link" data-scroll-target="#step-1-configuration-and-utilities">Step 1: Configuration and Utilities</a></li>
+  <li><a href="#step-2-geometry-calculations" id="toc-step-2-geometry-calculations" class="nav-link" data-scroll-target="#step-2-geometry-calculations">Step 2: Geometry Calculations</a></li>
+  <li><a href="#step-3-daytime-true-color" id="toc-step-3-daytime-true-color" class="nav-link" data-scroll-target="#step-3-daytime-true-color">Step 3: Daytime True Color</a></li>
+  <li><a href="#step-4-nighttime-enhancement" id="toc-step-4-nighttime-enhancement" class="nav-link" data-scroll-target="#step-4-nighttime-enhancement">Step 4: Nighttime Enhancement</a></li>
+  <li><a href="#step-5-blending-and-processing" id="toc-step-5-blending-and-processing" class="nav-link" data-scroll-target="#step-5-blending-and-processing">Step 5: Blending and Processing</a></li>
+  <li><a href="#a-midday-example" id="toc-a-midday-example" class="nav-link" data-scroll-target="#a-midday-example">A Midday Example</a></li>
+  <li><a href="#creating-the-solstice-animation" id="toc-creating-the-solstice-animation" class="nav-link" data-scroll-target="#creating-the-solstice-animation">Creating the Solstice Animation</a></li>
+  <li><a href="#complete-code-and-export-options" id="toc-complete-code-and-export-options" class="nav-link" data-scroll-target="#complete-code-and-export-options">Complete Code and Export Options</a></li>
+  <li><a href="#why-this-matters" id="toc-why-this-matters" class="nav-link" data-scroll-target="#why-this-matters">Why This Matters</a></li>
+  <li><a href="#try-it" id="toc-try-it" class="nav-link" data-scroll-target="#try-it">Try It</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Replicating GOES GeoColor in Earth Engine: A Winter Solstice Showcase</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Earth Engine</div>
+    <div class="quarto-category">GOES</div>
+    <div class="quarto-category">Remote Sensing</div>
+    <div class="quarto-category">Python</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Data-driven stories and practical notes on Earth Engine, geospatial analysis, and remote sensing.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Justin Braaten </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 29, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+<div>
+  <div class="keywords">
+    <div class="block-title">Keywords</div>
+    <p>Earth Engine, Geospatial Analysis, Python, Google Cloud, Remote Sensing, Raster Data, Datasets</p>
+  </div>
+</div>
+
+</header>
+
+
+<p>December 21st marked the winter solstice—the shortest day of the year in the Northern Hemisphere. With 15 hours of darkness across much of the U.S., it’s the perfect time to showcase the GOES GeoColor visualization: seamless transitions from sunlit landscapes to city lights and cloud illumination at night.</p>
+<p>A few years ago, I wrote about working with <a href="https://medium.com/@jstnbraaten/goes-in-earth-engine-53fbc8783c16">GOES data in Earth Engine</a>. Since then, the constellation has evolved: GOES-16 and GOES-17 have been replaced by <strong>GOES-18</strong> (West, ~137°W) and <strong>GOES-19</strong> (East, ~75°W).</p>
+<p>This post revisits GOES and shows how to replicate CIRA/NOAA’s stunning <a href="https://www.star.nesdis.noaa.gov/goes/conus_band.php?sat=G16&amp;band=GEOCOLOR&amp;length=24">GeoColor product</a> using Earth Engine’s Python API. We’ll use it to animate 24 hours across the solstice to watch the contiguous United States transition from night to day and back again.</p>
+<section id="what-is-goes" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-goes">What is GOES?</h2>
+<p>GOES (Geostationary Operational Environmental Satellite) is a series of weather satellites operated by NOAA and NASA that provide continuous monitoring of Earth’s western hemisphere from a fixed position in geostationary orbit, delivering data for storm tracking, weather forecasting, and climate research. The imaging cadence is between 30 seconds and 10 minutes, depending on the data product. Earth Engine ingests images as soon as they are available, with latency under an hour. Earth Engine offers the Cloud and Moisture Imagery (CMI) and Fire/Hotspot Characterization (FHS) products.</p>
+</section>
+<section id="what-is-geocolor" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-geocolor">What is GeoColor?</h2>
+<p>GeoColor is a composite visualization developed by CIRA (Cooperative Institute for Research in the Atmosphere) that blends true-color daytime imagery with infrared cloud data and nighttime enhancements including city lights and terrain shading. The result is a single, continuous view that works equally well at noon and midnight.</p>
+<p>Key components:</p>
+<ul>
+<li><strong>Daytime</strong>: Solar-corrected true color with synthetic green band</li>
+<li><strong>Nighttime</strong>: City lights from VIIRS, terrain shading from ETOPO1, and IR cloud overlay</li>
+<li><strong>Transition</strong>: Smooth blending based on solar zenith angle</li>
+</ul>
+<p>Let’s recreate GeoColor in Earth Engine using an approximation of the <a href="https://rammb2.cira.colostate.edu/wp-content/uploads/2020/01/jtechd190134.pdf">Miller et al., 2020</a> methods.</p>
+</section>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<p>The examples below run on a Jupyter kernel with Python 3.10+, <code>earthengine-api</code> and <code>geemap</code> installed. Set <code>EE_PROJECT_ID</code> in your environment or edit <code>PROJECT_ID</code> below to your Earth Engine project before running.</p>
+<div id="f17870b8" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ee</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> geemap</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Image, display, Markdown</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> urllib.request <span class="im">import</span> urlopen</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> save_image(url: <span class="bu">str</span>, filename: <span class="bu">str</span>) <span class="op">-&gt;</span> Path:</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Download an EE thumb URL to a local PNG so the post can embed it."""</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    dest <span class="op">=</span> Path(filename)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> urlopen(url) <span class="im">as</span> response, <span class="bu">open</span>(dest, <span class="st">"wb"</span>) <span class="im">as</span> fp:</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        fp.write(response.read())</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dest</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Prefer env var; readers can also hardcode directly if preferred.</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>PROJECT_ID <span class="op">=</span> os.environ.get(<span class="st">"EE_PROJECT_ID"</span>, <span class="st">"YOUR_PROJECT_ID"</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>ee.Initialize(project<span class="op">=</span>PROJECT_ID)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="step-1-configuration-and-utilities" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-configuration-and-utilities">Step 1: Configuration and Utilities</h2>
+<p>We’ll start by defining satellite positions and border overlays, then create a utility for applying scale factors from GOES image metadata. Note that we’re including GOES 16 and 17, in case you’re doing historical analysis.</p>
+<div id="74c21cb9" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Satellite longitude positions.</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>GOES_LONGITUDES <span class="op">=</span> {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'16'</span>: <span class="op">-</span><span class="dv">75</span>,   <span class="co"># East (retired)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'17'</span>: <span class="op">-</span><span class="dv">137</span>,  <span class="co"># West (retired)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'18'</span>: <span class="op">-</span><span class="dv">137</span>,  <span class="co"># West (operational)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'19'</span>: <span class="op">-</span><span class="dv">75</span>    <span class="co"># East (operational)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Border overlay using global administrative boundaries.</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>BORDERS_FC <span class="op">=</span> ee.FeatureCollection(<span class="st">'WM/geoLab/geoBoundaries/600/ADM1'</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>BORDER_IMAGE <span class="op">=</span> ee.Image().byte().paint(BORDERS_FC, <span class="dv">1</span>, <span class="dv">1</span>).visualize(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    palette<span class="op">=</span>[<span class="st">'ffffff'</span>], opacity<span class="op">=</span><span class="fl">0.6</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> apply_scale_factors(image):</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Apply band-specific scale and offset from image properties."""</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    bands <span class="op">=</span> image.bandNames()</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    props <span class="op">=</span> image.toDictionary()</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> scale_band(band_name):</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        band_str <span class="op">=</span> ee.String(band_name)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        scale <span class="op">=</span> ee.Number(props.get(band_str.cat(<span class="st">'_scale'</span>), <span class="fl">1.0</span>))</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        offset <span class="op">=</span> ee.Number(props.get(band_str.cat(<span class="st">'_offset'</span>), <span class="fl">0.0</span>))</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> image.select([band_str]).multiply(scale).add(offset).rename([band_str])</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    scaled <span class="op">=</span> ee.ImageCollection.fromImages(bands.<span class="bu">map</span>(scale_band)).toBands()</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ee.Image(scaled.rename(bands)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        .copyProperties(image, image.propertyNames())</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        .<span class="bu">set</span>(<span class="st">'system:time_start'</span>, image.get(<span class="st">'system:time_start'</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="step-2-geometry-calculations" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-geometry-calculations">Step 2: Geometry Calculations</h2>
+<p>GeoColor requires two angle calculations: solar zenith (for day/night blending) and satellite zenith (for atmospheric correction).</p>
+<div id="00b495b9" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_sun_zenith(image):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate cosine of solar zenith angle for each pixel."""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    time_ms <span class="op">=</span> image.date().millis()</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    year_start <span class="op">=</span> ee.Date.fromYMD(image.date().get(<span class="st">'year'</span>), <span class="dv">1</span>, <span class="dv">1</span>).millis()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    days_since_start <span class="op">=</span> ee.Number(time_ms).subtract(year_start).divide(<span class="dv">24</span> <span class="op">*</span> <span class="dv">60</span> <span class="op">*</span> <span class="dv">60</span> <span class="op">*</span> <span class="dv">1000</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Solar declination</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    fractional_year <span class="op">=</span> days_since_start.multiply(<span class="dv">2</span> <span class="op">*</span> math.pi <span class="op">/</span> <span class="fl">365.25</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    declination <span class="op">=</span> fractional_year.subtract(<span class="fl">1.39</span>).sin().multiply(<span class="fl">0.4091</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Solar time</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    seconds_in_day <span class="op">=</span> <span class="dv">86400</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    mod_time <span class="op">=</span> ee.Number(time_ms).mod(seconds_in_day <span class="op">*</span> <span class="dv">1000</span>).divide(<span class="dv">1000</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    utc_hour <span class="op">=</span> mod_time.divide(<span class="dv">3600</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    lat_lon <span class="op">=</span> ee.Image.pixelLonLat()</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    lat <span class="op">=</span> lat_lon.select(<span class="st">'latitude'</span>).multiply(math.pi <span class="op">/</span> <span class="dv">180</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    lon <span class="op">=</span> lat_lon.select(<span class="st">'longitude'</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    solar_time <span class="op">=</span> lon.divide(<span class="dv">15</span>).add(utc_hour)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    hour_angle <span class="op">=</span> solar_time.subtract(<span class="dv">12</span>).multiply(<span class="dv">15</span>).multiply(math.pi <span class="op">/</span> <span class="dv">180</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Cosine of solar zenith angle</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    cos_sza <span class="op">=</span> lat.sin().multiply(declination.sin()) <span class="op">\</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        .add(lat.cos().multiply(declination.cos()).multiply(hour_angle.cos()))</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cos_sza</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_sat_zenith_and_air_mass(image, sat_lon):</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate satellite viewing angle and atmospheric path length."""</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    re <span class="op">=</span> <span class="fl">6378.137</span>  <span class="co"># Earth radius (km)</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    h <span class="op">=</span> <span class="fl">42164.16</span>   <span class="co"># Geostationary orbit height (km)</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    r_ratio <span class="op">=</span> re <span class="op">/</span> h</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    lat_lon <span class="op">=</span> ee.Image.pixelLonLat()</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    lat <span class="op">=</span> lat_lon.select(<span class="st">'latitude'</span>).multiply(math.pi <span class="op">/</span> <span class="dv">180</span>)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    lon <span class="op">=</span> lat_lon.select(<span class="st">'longitude'</span>).multiply(math.pi <span class="op">/</span> <span class="dv">180</span>)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    sat_lon_rad <span class="op">=</span> ee.Number(sat_lon).multiply(math.pi <span class="op">/</span> <span class="dv">180</span>)</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    lon_diff <span class="op">=</span> lon.subtract(sat_lon_rad)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    cos_beta <span class="op">=</span> lat.cos().multiply(lon_diff.cos())</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    numerator <span class="op">=</span> cos_beta.subtract(r_ratio)</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    denominator <span class="op">=</span> ee.Image(<span class="fl">1.0</span>).add(r_ratio<span class="op">**</span><span class="dv">2</span>) <span class="op">\</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>        .subtract(ee.Image(<span class="dv">2</span> <span class="op">*</span> r_ratio).multiply(cos_beta)).sqrt()</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    cos_sat_zenith <span class="op">=</span> numerator.divide(denominator).clamp(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    air_mass <span class="op">=</span> ee.Image(<span class="fl">1.0</span>).divide(cos_sat_zenith).clamp(<span class="fl">1.0</span>, <span class="fl">6.0</span>)</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    sat_zenith_deg <span class="op">=</span> cos_sat_zenith.acos().multiply(<span class="dv">180</span> <span class="op">/</span> math.pi)</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sat_zenith_deg, air_mass</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="step-3-daytime-true-color" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-daytime-true-color">Step 3: Daytime True Color</h2>
+<p>The daytime layer uses GOES bands 1-3 (blue, red, vegetation red edge) to create a synthetic green band, then applies atmospheric haze correction and solar-aware gamma stretching.</p>
+<div id="bc82225b" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_daytime_layer(image, sat_lon, cos_sun):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Generate corrected true-color RGB for daytime."""</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    img <span class="op">=</span> apply_scale_factors(image)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    sat_zenith_deg, air_mass <span class="op">=</span> calculate_sat_zenith_and_air_mass(img, sat_lon)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Cloud-modulated haze correction.</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    ir_temp <span class="op">=</span> img.select(<span class="st">'CMI_C13'</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    cloud_mod <span class="op">=</span> ir_temp.subtract(<span class="dv">233</span>).divide(<span class="dv">283</span> <span class="op">-</span> <span class="dv">233</span>).clamp(<span class="fl">0.3</span>, <span class="fl">1.0</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    b_haze <span class="op">=</span> air_mass.multiply(<span class="fl">0.045</span>).add(<span class="fl">0.015</span>).multiply(cloud_mod)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    r_haze <span class="op">=</span> air_mass.multiply(<span class="fl">0.022</span>).add(<span class="fl">0.005</span>).multiply(cloud_mod)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    v_haze <span class="op">=</span> air_mass.multiply(<span class="fl">0.008</span>).add(<span class="fl">0.002</span>).multiply(cloud_mod)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> img.select(<span class="st">'CMI_C01'</span>).<span class="bu">max</span>(<span class="dv">0</span>).clamp(<span class="dv">0</span>, <span class="fl">1.3</span>).subtract(b_haze).<span class="bu">max</span>(<span class="dv">0</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> img.select(<span class="st">'CMI_C02'</span>).<span class="bu">max</span>(<span class="dv">0</span>).clamp(<span class="dv">0</span>, <span class="fl">1.3</span>).subtract(r_haze).<span class="bu">max</span>(<span class="dv">0</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> img.select(<span class="st">'CMI_C03'</span>).<span class="bu">max</span>(<span class="dv">0</span>).clamp(<span class="dv">0</span>, <span class="fl">1.3</span>).subtract(v_haze).<span class="bu">max</span>(<span class="dv">0</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Synthetic green band.</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    g_syn <span class="op">=</span> r.multiply(<span class="fl">0.45</span>).add(b.multiply(<span class="fl">0.45</span>)).add(v.multiply(<span class="fl">0.10</span>))</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    g_hybrid <span class="op">=</span> g_syn.multiply(<span class="fl">0.93</span>).add(v.multiply(<span class="fl">0.07</span>))</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> apply_log_stretch(img):</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        clamped <span class="op">=</span> img.clamp(<span class="fl">0.01</span>, <span class="fl">1.1</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        logged <span class="op">=</span> clamped.log().divide(math.log(<span class="dv">10</span>))</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        min_log <span class="op">=</span> math.log10(<span class="fl">0.01</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        max_log <span class="op">=</span> math.log10(<span class="fl">1.1</span>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        normalized <span class="op">=</span> logged.subtract(min_log).divide(max_log <span class="op">-</span> min_log)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Limb correction (darker at edges).</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        sza_clamped <span class="op">=</span> sat_zenith_deg.clamp(<span class="dv">0</span>, <span class="dv">80</span>)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        gamma_sat <span class="op">=</span> ee.Image(<span class="fl">0.85</span>).add(ee.Image(<span class="fl">0.15</span>).multiply(sza_clamped.divide(<span class="dv">80</span>)))</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Sunset boost (brighter near terminator).</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        solar_boost <span class="op">=</span> ee.Image(<span class="fl">1.0</span>).subtract(cos_sun.clamp(<span class="fl">0.1</span>, <span class="fl">1.0</span>)).multiply(<span class="fl">0.25</span>)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        gamma_final <span class="op">=</span> gamma_sat.subtract(solar_boost).<span class="bu">max</span>(<span class="fl">0.65</span>)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> normalized.<span class="bu">pow</span>(gamma_final)</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    r_final <span class="op">=</span> apply_log_stretch(r)</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    g_final <span class="op">=</span> apply_log_stretch(g_hybrid)</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    b_final <span class="op">=</span> apply_log_stretch(b)</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ee.Image.cat([r_final, g_final, b_final]).rename([<span class="st">'red'</span>, <span class="st">'green'</span>, <span class="st">'blue'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="step-4-nighttime-enhancement" class="level2">
+<h2 class="anchored" data-anchor-id="step-4-nighttime-enhancement">Step 4: Nighttime Enhancement</h2>
+<p>The nighttime layer combines VIIRS city lights, terrain-shaded elevation, and infrared cloud imagery. This is where GeoColor really shines—literally. Note that the night lights layer is the 2024 median of the VIIRS VCMSLCFG product.</p>
+<div id="13b27012" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Static nighttime assets.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>CITY_LIGHTS <span class="op">=</span> ee.ImageCollection(<span class="st">"NOAA/VIIRS/DNB/MONTHLY_V1/VCMSLCFG"</span>) <span class="op">\</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    .filterDate(<span class="st">'2024-01-01'</span>, <span class="st">'2025-01-01'</span>).select(<span class="st">'avg_rad'</span>) <span class="op">\</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    .median() <span class="op">\</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    .setDefaultProjection(<span class="st">'EPSG:4326'</span>, <span class="va">None</span>, <span class="dv">1000</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>DEM <span class="op">=</span> ee.Image(<span class="st">"NOAA/NGDC/ETOPO1"</span>).select(<span class="st">'bedrock'</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>NIGHT_BG_BASE <span class="op">=</span> ee.Image.constant([<span class="fl">0.06</span>, <span class="fl">0.03</span>, <span class="fl">0.13</span>])</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>FOG_COLOR <span class="op">=</span> ee.Image.constant([<span class="fl">0.55</span>, <span class="fl">0.75</span>, <span class="fl">0.98</span>])</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_nighttime_layer(image):</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Generate city lights + terrain + IR clouds for nighttime."""</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    img <span class="op">=</span> apply_scale_factors(image)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Terrain shading.</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    is_land <span class="op">=</span> DEM.gt(<span class="dv">0</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    n_e <span class="op">=</span> DEM.<span class="bu">max</span>(<span class="dv">0</span>).divide(<span class="dv">10000</span>).clamp(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    terrain_tint <span class="op">=</span> NIGHT_BG_BASE.multiply(ee.Image(<span class="dv">1</span>).subtract(n_e)).add(n_e)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    shading <span class="op">=</span> ee.Terrain.hillshade(DEM.multiply(<span class="dv">5</span>), <span class="dv">315</span>, <span class="dv">35</span>).divide(<span class="dv">255</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    shading_soft <span class="op">=</span> shading.multiply(<span class="fl">0.3</span>).add(<span class="fl">0.7</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    nightscape <span class="op">=</span> ee.Image.constant([<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>]).where(is_land, terrain_tint.multiply(shading_soft))</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># City lights (log-scaled).</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    lights_log <span class="op">=</span> CITY_LIGHTS.where(CITY_LIGHTS.lte(<span class="dv">0</span>), <span class="fl">1e-10</span>).log10()</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    lights_norm <span class="op">=</span> lights_log.subtract(<span class="op">-</span><span class="fl">0.5</span>).divide(<span class="fl">2.5</span>).clamp(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    lights_dim <span class="op">=</span> lights_norm.multiply(<span class="fl">0.85</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    lights_mask <span class="op">=</span> lights_dim.gt(<span class="fl">0.25</span>)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    lights_rgb <span class="op">=</span> ee.Image.cat([</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>        lights_dim.<span class="bu">pow</span>(<span class="fl">0.75</span>),  <span class="co"># Red</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        lights_dim.<span class="bu">pow</span>(<span class="fl">1.25</span>),  <span class="co"># Green</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>        lights_dim.<span class="bu">pow</span>(<span class="fl">2.00</span>)   <span class="co"># Blue (cooler tint)</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Infrared clouds and fog detection.</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    ir <span class="op">=</span> img.select(<span class="st">'CMI_C13'</span>)</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    ir_norm <span class="op">=</span> ir.subtract(<span class="dv">242</span>).multiply(<span class="op">-</span><span class="dv">1</span>).divide(<span class="dv">62</span>).clamp(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    swir <span class="op">=</span> img.select(<span class="st">'CMI_C07'</span>)</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    diff <span class="op">=</span> ir.subtract(swir)</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    fog_opacity <span class="op">=</span> diff.subtract(<span class="fl">1.0</span>).divide(<span class="fl">3.0</span>).clamp(<span class="dv">0</span>, <span class="dv">1</span>).multiply(ir.gt(<span class="dv">240</span>))</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Layer composition.</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    canvas <span class="op">=</span> nightscape.where(lights_mask, lights_rgb)</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    canvas <span class="op">=</span> canvas.blend(FOG_COLOR.updateMask(fog_opacity))</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>    ir_gray <span class="op">=</span> ee.Image.cat([ir_norm, ir_norm, ir_norm])</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>    canvas <span class="op">=</span> canvas.blend(ir_gray.updateMask(ir_norm))</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> canvas.rename([<span class="st">'red'</span>, <span class="st">'green'</span>, <span class="st">'blue'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="step-5-blending-and-processing" class="level2">
+<h2 class="anchored" data-anchor-id="step-5-blending-and-processing">Step 5: Blending and Processing</h2>
+<p>Now we combine daytime and nighttime layers with a smooth transition based on solar angle, then overlay borders.</p>
+<div id="be04ba42" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> process_single_image(image, sat_lon):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Generate GeoColor composite with borders."""</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate solar angle.</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    cos_sun <span class="op">=</span> calculate_sun_zenith(image)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generate base layers.</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    day_layer <span class="op">=</span> get_daytime_layer(image, sat_lon, cos_sun)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    night_layer <span class="op">=</span> get_nighttime_layer(image)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Blending.</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    day_weight <span class="op">=</span> cos_sun.unitScale(<span class="fl">0.1</span>, <span class="fl">0.3</span>).clamp(<span class="dv">0</span>, <span class="dv">1</span>).<span class="bu">pow</span>(<span class="fl">1.5</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    geocolor <span class="op">=</span> day_layer.multiply(day_weight).add(</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        night_layer.multiply(ee.Image(<span class="dv">1</span>).subtract(day_weight))</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add border overlay.</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    final_vis <span class="op">=</span> geocolor.visualize(<span class="bu">min</span><span class="op">=</span><span class="dv">0</span>, <span class="bu">max</span><span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    final_composite <span class="op">=</span> final_vis.blend(BORDER_IMAGE)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> final_composite.copyProperties(image, [<span class="st">'system:time_start'</span>])</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_goes_collection(collection_id, start_date, end_date, step<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="co">    Generate processed GeoColor collection with optional frame skipping.</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co">        collection_id: e.g., "NOAA/GOES/19/MCMIPF"</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="co">        start_date: ISO string</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="co">        end_date: ISO string</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="co">        step: Frame skip interval (1=every frame, 2=every 2nd frame, etc.)</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parse satellite ID</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    sat_id <span class="op">=</span> collection_id.split(<span class="st">'/'</span>)[<span class="dv">2</span>]</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    sat_lon <span class="op">=</span> GOES_LONGITUDES.get(sat_id)</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> sat_lon <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="ss">f"Unknown GOES ID '</span><span class="sc">{</span>sat_id<span class="sc">}</span><span class="ss">'"</span>)</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Load and optionally subsample collection.</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    raw_col <span class="op">=</span> ee.ImageCollection(collection_id).filterDate(start_date, end_date)</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> step <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>        col_list <span class="op">=</span> raw_col.toList(raw_col.size())</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>        sliced_list <span class="op">=</span> col_list.<span class="bu">slice</span>(<span class="dv">0</span>, <span class="va">None</span>, step)</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>        raw_col <span class="op">=</span> ee.ImageCollection.fromImages(sliced_list)</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw_col.<span class="bu">map</span>(<span class="kw">lambda</span> img: process_single_image(img, sat_lon))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="a-midday-example" class="level2">
+<h2 class="anchored" data-anchor-id="a-midday-example">A Midday Example</h2>
+<p>Let’s render a single GeoColor frame from midday on the solstice to see the result before animating.</p>
+<div id="43afa4a9" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get a single image.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>single_col <span class="op">=</span> get_goes_collection(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"NOAA/GOES/19/MCMIPF"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'2025-12-21T16:00'</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'2025-12-21T16:15'</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    step<span class="op">=</span><span class="dv">1</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>single_image <span class="op">=</span> single_col.first()</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define region (CONUS).</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>roi <span class="op">=</span> ee.Geometry.Rectangle([<span class="op">-</span><span class="fl">125.0</span>, <span class="fl">24.0</span>, <span class="op">-</span><span class="fl">66.0</span>, <span class="fl">50.0</span>], <span class="va">None</span>, <span class="va">False</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> single_image.getThumbURL({</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'region'</span>: roi,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'dimensions'</span>: <span class="dv">800</span>,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">'format'</span>: <span class="st">'png'</span>,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">'crs'</span>: <span class="st">'EPSG:5070'</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>output_image <span class="op">=</span> <span class="st">'goes_midday.png'</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>save_image(url, output_image)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="5d4a35b0" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the midday image.</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>Image(<span class="st">'goes_midday.png'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The synthetic green band creates natural-looking vegetation, atmospheric correction reduces haze, and state borders provide geographic context. In the upper left you can see the nightime begin to fade to day.</p>
+</section>
+<section id="creating-the-solstice-animation" class="level2">
+<h2 class="anchored" data-anchor-id="creating-the-solstice-animation">Creating the Solstice Animation</h2>
+<p>Now for the main event: 24 hours across the winter solstice, watching illumination across CONUS at the annual northern hemisphere minimum. Here we use <a href="https://geemap.org/">geemap</a> to download the GIF and add a time stamp to each frame and a progress bar to the bottom. Note that <code>geemap.download_ee_video</code> calls <code>ee.ImageCollection.getVideoThumbURL</code> which has a limit on pixels/download size that can be. If you require larger downloads, see the export to Google Cloud Storage section below or manage downloading and rendering frames with your own system.</p>
+<div id="22a21484" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define animation parameters.</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>roi <span class="op">=</span> ee.Geometry.Rectangle([<span class="op">-</span><span class="fl">125.0</span>, <span class="fl">24.0</span>, <span class="op">-</span><span class="fl">66.0</span>, <span class="fl">50.0</span>], <span class="va">None</span>, <span class="va">False</span>)  <span class="co"># CONUS</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>start_date <span class="op">=</span> <span class="st">'2025-12-21T04:30'</span>  <span class="co"># Pre-dawn</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>end_date <span class="op">=</span> <span class="st">'2025-12-22T04:30'</span>    <span class="co"># Next morning</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>skip_step <span class="op">=</span> <span class="dv">2</span>  <span class="co"># Every 20 minutes (GOES-19 full disk = 10 min cadence)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate collection.</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>goes_col <span class="op">=</span> get_goes_collection(</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"NOAA/GOES/19/MCMIPF"</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    start_date,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    end_date,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    step<span class="op">=</span>skip_step</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Add timestamp labels.</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_readable_time(img):</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> ee.Date(img.get(<span class="st">'system:time_start'</span>))</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> img.<span class="bu">set</span>(<span class="st">'label'</span>, date.<span class="bu">format</span>(<span class="st">'yyyy-MM-dd HH:mm'</span>).cat(<span class="st">' UTC'</span>))</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>goes_col <span class="op">=</span> goes_col.<span class="bu">map</span>(add_readable_time)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Download and create GIF (disabled during site render)</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>output_gif <span class="op">=</span> <span class="st">'goes_solstice_animation.gif'</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>video_args <span class="op">=</span> {</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">'dimensions'</span>: <span class="dv">800</span>,</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">'region'</span>: roi,</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">'framesPerSecond'</span>: <span class="dv">1</span>,</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">'crs'</span>: <span class="st">'EPSG:5070'</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>geemap.download_ee_video(goes_col, video_args, output_gif)</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>geemap.add_text_to_gif(</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    output_gif,</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    output_gif,</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    xy<span class="op">=</span>(<span class="st">'3%'</span>, <span class="st">'5%'</span>),</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    text_sequence<span class="op">=</span>goes_col.aggregate_array(<span class="st">'label'</span>).getInfo(),</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    font_size<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    font_color<span class="op">=</span><span class="st">'white'</span>,</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    duration<span class="op">=</span><span class="dv">100</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="087b9b77" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the animation.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">'![](goes_solstice_animation.gif)'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<div>
+<figure class="figure">
+<p><img src="goes_solstice_animation.gif" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Watch as morning light sweeps westward across the Atlantic, cities fade into daylight, the sun reaches its low arc across the southern sky, and by late afternoon the eastern seaboard is already dark. City lights bloom and western cities remain visible until the Pacific coast finally succumbs to night.</p>
+<p>The extended darkness showcases GeoColor’s unique nighttime representation, and the rapid transitions at the solstice create dramatic temporal dynamics.</p>
+<p>The code above works identically for GOES-18 by changing the collection ID—just swap <code>19</code> for <code>18</code> to see the western hemisphere view.</p>
+</section>
+<section id="complete-code-and-export-options" class="level2">
+<h2 class="anchored" data-anchor-id="complete-code-and-export-options">Complete Code and Export Options</h2>
+<p>The full implementation is available as a <a href="https://gist.github.com/jdbcode/f6639195ce3a2f7ebed15b2aee4d5ea3">GitHub Gist</a> and <a href="https://colab.sandbox.google.com/gist/jdbcode/f6639195ce3a2f7ebed15b2aee4d5ea3/replicating_goes_geocolor_in_earth_engine.ipynb">Google Colab notebook</a> for easy experimentation.</p>
+<p>For high-resolution exports, use Earth Engine’s batch export to Google Cloud Storage:</p>
+<div id="a635761c" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>task <span class="op">=</span> ee.batch.Export.video.toCloudStorage(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    collection<span class="op">=</span>goes_col,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    description<span class="op">=</span><span class="st">'goes_geocolor_solstice'</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    bucket<span class="op">=</span><span class="st">'your-bucket-name'</span>,  <span class="co"># &lt;-- Replace with your GCS bucket name</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    fileNamePrefix<span class="op">=</span><span class="st">'ee_exports/goes_geocolor_solstice'</span>,  <span class="co"># &lt;-- Edit as needed</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    dimensions<span class="op">=</span><span class="dv">1280</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    framesPerSecond<span class="op">=</span><span class="dv">12</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    region<span class="op">=</span>roi,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    crs<span class="op">=</span><span class="st">'EPSG:5070'</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>task.start()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="why-this-matters" class="level2">
+<h2 class="anchored" data-anchor-id="why-this-matters">Why This Matters</h2>
+<p>GeoColor transforms GOES from a meteorological workhorse into a visual storytelling platform. The algorithm’s thoughtful design—terrain-aware nighttime rendering, solar-corrected color balance, seamless transitions—creates imagery that’s both scientifically accurate and aesthetically compelling.</p>
+<p>With GOES-18 and GOES-19 now operational and streaming into Earth Engine, you can:</p>
+<ul>
+<li>Monitor severe weather in near real-time</li>
+<li>Create custom visualizations for public outreach</li>
+<li>Analyze diurnal patterns in cloud cover, fire behavior, or coastal fog</li>
+<li>Build time-aware composites that respect day/night boundaries</li>
+</ul>
+<p>The winter solstice offers a perfect testing ground: maximum nighttime coverage, dramatic lighting transitions, and a reminder that Earth Engine’s data catalog extends far beyond Landsat and Sentinel.</p>
+</section>
+<section id="try-it" class="level2">
+<h2 class="anchored" data-anchor-id="try-it">Try It</h2>
+<p>Explore the <a href="https://developers.google.com/earth-engine/datasets/catalog/NOAA_GOES_19_MCMIPF">GOES-19 Full Disk collection</a> in the Earth Engine Data Catalog. Modify the date range, adjust the blending parameters, or try the CONUS collection (<code>NOAA/GOES/19/MCMIPC</code>) for 5-minute updates over North America.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2025 Justin Braaten</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>Built with Quarto</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

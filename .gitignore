@@ -23,6 +23,6 @@ gee-key.json
 
 # Quarto intermediate files (just in case)
 posts/**/*.md
-posts/**/*.ipynb
+# posts/**/*.ipynb
 posts/**/*.knit.md
 *_cache/
